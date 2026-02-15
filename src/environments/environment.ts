@@ -1,5 +1,5 @@
 export const environment = {
-  production: false, // خليها true لما ترفع المشروع على السيرفر (production)
+  production: false,
 
   firebase: {
     apiKey: 'AIzaSyBitEJhpd-ACX_yz-vE7EPrLPgVuZUBYlQ',
@@ -10,4 +10,5 @@ export const environment = {
     appId: '1:900547010771:web:2f805247918cff97d0b426',
     measurementId: 'G-FJMMRN2NKE',
   },
+  googleMapsApiKey: 'AIzaSyCDGR13JUYALaR-uqXS9AE4ApjSnn1k-gc',
 };

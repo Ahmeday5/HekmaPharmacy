@@ -17,6 +17,7 @@ import {
 import { Observable } from 'rxjs';
 import { InDeliveryOrders } from '../types/InDeliveryOrders.type';
 import { allDeliverymen } from '../types/deliverymen.type';
+import { getDoc } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root', // singleton service متاح لكل المشروع
@@ -116,5 +117,60 @@ export class RealtimeService {
       orderBy('createdAt', 'desc')
     );
     return collectionData(q, { idField: 'id' });
+  }
+
+  async sendBell(deliverymanId: string) {
+    try {
+      // 1. جيب reference للـ document باستخدام doc و collection functions
+      const deliverymanRef = doc(this.firestore, 'deliverymen', deliverymanId);
+
+      // 2. جيب البيانات
+      const docSnap = await getDoc(deliverymanRef);
+
+      if (!docSnap.exists()) {
+        alert('المندوب مش موجود في القاعدة');
+        return;
+      }
+
+      const token = docSnap.data()['fcmToken'];
+      if (!token) {
+        alert('المندوب مش متصل بالنت أو مفيش توكن');
+        return;
+      }
+
+      // 3. ارسل الإشعار مباشرة عبر FCM API
+      const response = await fetch('https://fcm.googleapis.com/fcm/send', {
+        method: 'POST',
+        headers: {
+          Authorization:
+            'key=BLHOzLNKwz11n-kcORAQCnc7mRtzQMZNQ7svyGMJqkc3zQOsy43yyajtyXl49Y9zJIJiAHQmIkDLzz-1gn8mf9o', // غيّر ده بـ server key الحقيقي بتاعك (خطير لو مكشوف!)
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: token,
+          notification: {
+            title: 'طلبية جاهزة!',
+            body: 'تعالى خد الطلبية من الصيدلية دلوقتي',
+          },
+          priority: 'high', // اختياري، عشان يجي فورًا
+        }),
+      });
+
+      if (response.ok) {
+        alert('تم إرسال التنبيه بنجاح!');
+      } else {
+        const errorText = await response.text();
+        console.error('فشل في الإرسال:', errorText);
+        alert('فشل في الإرسال');
+      }
+    } catch (error) {
+      console.error('خطأ في sendBell:', error);
+      alert('حدث خطأ غير متوقع');
+    }
+  }
+
+  async updateDeliverymanToken(id: string, token: string) {
+    const docRef = doc(this.firestore, `deliverymen/${id}`);
+    await setDoc(docRef, { deviceToken: token }, { merge: true });
   }
 }

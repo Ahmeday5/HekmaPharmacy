@@ -766,4 +766,12 @@ export class ApiService {
         })
       );
   }
+
+  sendNotification(body: {
+    deviceToken: string;
+    title: string;
+    body: string;
+  }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/Notification/send`, body);
+  }
 }

@@ -341,4 +341,60 @@ export class AllDeliverymanComponent implements OnInit {
   editDeliverymen(id: number) {
     this.router.navigate(['/editDeliverymen', id]);
   }
+
+  async sendBell(deliverymanId: number | string) {
+    // تأكيد ودي قبل الإرسال
+    if (!confirm('هل تريد ارسال اشعار للمندوب؟')) {
+      return;
+    }
+
+    const deliveryman = this.Deliverymen.find((d) => d.id === deliverymanId);
+
+    if (!deliveryman) {
+      alert('حدث خطأ، المندوب غير موجود في القائمة حاليًا.');
+      return;
+    }
+
+    if (!deliveryman.deviceToken) {
+      // رسالة ودية وواضحة بدل "مفيش device token"
+      alert(
+        `المندوب "${deliveryman.name}" غير متصل حاليًا بالتطبيق.\n\nيرجى الانتظار حتى يقوم بفتح التطبيق على موبايله، ثم يمكنك إرسال التنبيه.`
+      );
+      return;
+    }
+
+    // لو فيه token، ابدأ الإرسال
+    this.loading = true; // نستخدم نفس السبينر اللي في الفورم أو نضيف متغير جديد لو عايز
+    this.DeliverymenMessage = '';
+    this.noDeliverymenMessage = '';
+
+    try {
+      const body = {
+        deviceToken: deliveryman.deviceToken,
+        title: 'طلبية جاهزة!',
+        body: 'اذهب لاستلام الطلبية من الصيدلية علي الفور',
+      };
+
+      const response = await firstValueFrom(
+        this.apiService.sendNotification(body)
+      );
+
+      // رسالة نجاح لطيفة مع الاسم
+      this.DeliverymenMessage = `تم إرسال التنبيه بنجاح للمندوب "${deliveryman.name}"`;
+      // اختفاء الرسالة بعد 5 ثواني
+      setTimeout(() => {
+        this.DeliverymenMessage = '';
+      }, 4000);
+    } catch (error: any) {
+      // رسالة خطأ ودية ومطمئنة
+      this.noDeliverymenMessage = `فشل إرسال التنبيه إلى "${deliveryman.name}" \nممكن يكون موبايله مقفل أو مفيش نت، حاول مرة اخري بعد قليل .`;
+      setTimeout(() => {
+        this.noDeliverymenMessage = '';
+      }, 4000);
+      console.error('خطأ في إرسال الإشعار:', error);
+    } finally {
+      this.loading = false;
+      this.cdr.detectChanges();
+    }
+  }
 }

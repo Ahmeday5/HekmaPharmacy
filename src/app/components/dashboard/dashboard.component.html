@@ -3,7 +3,23 @@
     <div class="col-xl-3 col-lg-3 col-md-4 col-sm-5 col-12 right-side">
       <div class="row">
         <div class="col-md-12">
-          <a class="btn btn-deliveryman" routerLink="/Deliverymen">
+          @if (successMessage) {
+          <div class="alert alert-success d-flex align-items-center mt-4" role="alert">
+            <svg class="bi flex-shrink-0 me-2 ms-3" width="24" height="24" role="img" aria-label="Success:">
+              <use xlink:href="#check-circle-fill" />
+            </svg>
+            <div>{{ successMessage }}</div>
+          </div>
+          }
+          @if (errorMessage) {
+          <div class="alert alert-danger d-flex align-items-center mt-4" role="alert">
+            <svg class="bi flex-shrink-0 me-2 ms-3" width="24" height="24" role="img" aria-label="Danger:">
+              <use xlink:href="#exclamation-triangle-fill" />
+            </svg>
+            <div>{{ errorMessage }}</div>
+          </div>
+          }
+          <a class="btn btn-deliveryman">
             <div class="card-representative scrollDiv">
               <h2 class="title text-center">قائمة المندوبين</h2>
               <ul class="list-group agents">
@@ -12,17 +28,24 @@
 
                 @if (deliveryman.isAvaliable === true) {
                 <li class="ready list-group-item">
-                  <h3><span class="dot green"></span>{{deliveryman.name}}</h3>
+                  <div class="d-flex justify-content-around">
+                    <h5><span class="dot green"></span>{{deliveryman.name}}</h5>
+                    <i class="fa-solid fa-bell text-primary fa-lg" style="cursor: pointer;"
+                      (click)="sendBell(deliveryman.id)" title="أرسل تنبيه للمندوب"></i>
+                  </div>
                   <div class="d-flex justify-content-around">
                     <h6>جاهز</h6>
-                    <img [src]="getFullImageUrl(deliveryman.imageUrl)" class="img-fluid imgDelivery"
-                      alt="{{ deliveryman.name }}" (error)="onImageError($event)">
                   </div>
                 </li>
                 }@else {
                 <li class="offline list-group-item mt-3">
-                  <h3><span class="dot red"></span>{{deliveryman.name}}</h3>
-                  <h6>خارج الخدمة</h6>
+                  <div class="d-flex justify-content-around">
+                    <h5><span class="dot red"></span>{{deliveryman.name}}</h5>
+                    <i class="fa-solid fa-bell text-muted" style="cursor: not-allowed;" title="المندوب غير متاح"></i>
+                  </div>
+                  <div class="d-flex justify-content-around">
+                    <h6>خارج الخدمة</h6>
+                  </div>
                 </li>
                 }
                 }
@@ -178,11 +201,22 @@
     </div>
 
     <div
-      class="col-xl-9 col-lg-9 col-md-8 col-sm-7 col-12 left-side d-flex justify-content-center align-items-center align-content-center">
-      <div class="map text-center">
-        <h1><i class="fa-solid fa-location-dot"></i></h1>
-        <h1>خريطة المندوبين المباشرة</h1>
-        <h1>تتبع مواقع المندوبين في الوقت الفعلي</h1>
+      class="col-xl-9 col-lg-9 col-md-8 col-sm-7 col-12 left-side d-flex justify-content-center align-items-center align-content-center p-0">
+      <div class="map text-center h-100 w-100">
+        @if (apiLoaded) {
+        <google-map #googleMap height="100%" width="100%" [center]="center" [zoom]="zoom">
+          @for (marker of markers; track marker.title) {
+          <map-marker [position]="marker.position" [label]="marker.label" [title]="marker.title"
+            [options]="{ icon: marker.icon }" (mapClick)="openInfo($event, marker.info)">
+          </map-marker>
+          }
+        </google-map>
+        } @else {
+        <div class="text-center">
+          <p>جاري تحميل الخريطة...</p>
+          <!-- أو spinner -->
+        </div>
+        }
       </div>
     </div>
   </div>

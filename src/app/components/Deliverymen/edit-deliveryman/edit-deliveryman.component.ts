@@ -90,7 +90,7 @@ export class EditDeliverymanComponent implements OnInit {
           this.deliverymen = {
             id: deliverymenFromAPI.id,
             name: deliverymenFromAPI.name,
-            email: deliverymenFromAPI.email,
+            email: deliverymenFromAPI.email ?? '',
             password: '',
             imageUrl: deliverymenFromAPI.imageUrl || '', // أضف هذا
           };

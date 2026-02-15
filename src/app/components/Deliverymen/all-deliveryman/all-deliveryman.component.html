@@ -167,7 +167,7 @@
             <div class="title-alert">{{ DeliverymenMessage }}</div>
           </div>
           }
-          
+
           <div class="card-body">
             <div class="table-responsive custom-table">
               <table class="table table-bordered custom-table-design text-center">
@@ -179,6 +179,7 @@
                     <th>اسم المندوب</th>
                     <th>الايميل</th>
                     <th>الحالة</th>
+                    <th>ارسال تنبيه</th>
                     <th>حذف</th>
                     <th>تعديل</th>
                   </tr>
@@ -204,6 +205,14 @@
                       } @else {
                       <span>{{ deliveryman.isAvaliable }}</span>
                       }
+                    </td>
+                    <td>
+                      <!-- زر الجرس -->
+                      <button class="btn btn-primary btn-sm" (click)="sendBell(deliveryman.id)"
+                        [disabled]="deliveryman.isAvaliable === false"
+                        title="{{ deliveryman.deviceToken ? 'إرسال تنبيه للمندوب' : 'المندوب غير متصل حاليًا' }}">
+                        <i class="fa-solid fa-bell"></i>
+                      </button>
                     </td>
                     <td>
                       <button class="btn btn-delete" (click)="deleteDeliverymen(deliveryman.id)">

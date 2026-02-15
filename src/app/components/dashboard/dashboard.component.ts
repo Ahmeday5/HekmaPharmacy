@@ -8,11 +8,11 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { ApiService } from '../../services/api.service';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import {
   allDeliverymen,
   DeliverymenResponse,
@@ -20,11 +20,13 @@ import {
 import { InDeliveryOrders } from '../../types/InDeliveryOrders.type';
 import { RealtimeService } from '../../services/realtime.service'; //firebase
 import { Subscription } from 'rxjs'; //firebase
-
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { GoogleMap, GoogleMapsModule, MapMarker } from '@angular/google-maps';
+import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, GoogleMapsModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -35,6 +37,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   @ViewChild('form', { static: false, read: ElementRef })
   formElement!: ElementRef<HTMLFormElement>;
   isLoading: boolean = false;
+  @ViewChild(GoogleMap) googleMap!: GoogleMap;
 
   /*******allDeliverymen*********/
   noDeliverymenMessage: string | null = null;
@@ -63,14 +66,48 @@ export class DashboardComponent implements OnInit, OnDestroy {
   errorMessage: string = '';
   successMessage: string = '';
 
+  // Google Maps vars
+  apiLoaded = false;
+  center: google.maps.LatLngLiteral = { lat: 30.0444, lng: 31.2357 };
+  zoom = 12;
+  markers: {
+    position: google.maps.LatLngLiteral;
+    label: string;
+    title: string;
+    info: string; // غيرت إلى غير optional، مع default
+    icon?: string;
+  }[] = [];
+
   constructor(
     private http: HttpClient,
     private apiService: ApiService,
     private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private realtime: RealtimeService // الحقن هنا
-  ) {}
+    private realtime: RealtimeService, // الحقن هنا
+  ) {
+    this.loadGoogleMapsApi();
+  }
+
+  private loadGoogleMapsApi(): void {
+    if (typeof google !== 'undefined' && google.maps) {
+      this.apiLoaded = true;
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${environment.googleMapsApiKey}&libraries=places`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      this.apiLoaded = true;
+      this.cdr.detectChanges();
+    };
+    script.onerror = () => {
+      console.error('Failed to load Google Maps API');
+      this.errorMessage = 'فشل تحميل الخريطة، تحقق من الإنترنت أو المفتاح.';
+    };
+    document.head.appendChild(script);
+  }
 
   // دالة لعرض الصورة في الـ modal
   showImage() {
@@ -97,71 +134,106 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    // الاستماع للمندوبين من Firestore لحظياً:
-    const sub1 = this.realtime.getDeliverymen().subscribe(
-      (data) => {
-        // البيانات هنا عبارة عن مصفوفة من المستندات
-        // تأكد أن الحقول تتطابق (مثلاً isAvailable أو isAvaliable حسب اللي في DB)
-        this.Deliverymen = data.map((d) => ({
+    this.loading = true;
+
+    // 1. استمع للمندوبين من Firestore (للـ real-time)
+    const sub1 = this.realtime
+      .getDeliverymen()
+      .subscribe(async (firestoreData) => {
+        this.Deliverymen = firestoreData.map((d) => ({
           id: d.id,
           name: d.name,
-          email: d.email,
-          password: d.password,
           isAvaliable: d.isAvaliable ?? false,
-          imageUrl: d.imageUrl, // أضف هذا الحقل
+          imageUrl: d.imageUrl,
+          deviceToken: d.deviceToken || null, // لو موجود في Firestore، استخدمه
+          lat: d.lat ?? 30.0444, // إضافة lat من Firebase
+          lng: d.lng ?? 31.2357, // إضافة lng من Firebase
         }));
+
+        // 2. جيب deviceToken من backend وخزنه في Firestore + في الـ array
+        try {
+          const backendResponse = await firstValueFrom(
+            this.apiService.getAllDeliverymen(1, 100),
+          ); // جيب كلهم
+          const backendMap = new Map(
+            backendResponse.items.map((item: any) => [
+              item.id,
+              item.deviceToken,
+            ]),
+          );
+
+          for (const deliveryman of this.Deliverymen) {
+            const backendToken = backendMap.get(Number(deliveryman.id));
+            if (backendToken && deliveryman.deviceToken !== backendToken) {
+              // خزن في Firestore
+              await this.realtime.updateDeliverymanToken(
+                deliveryman.id.toString(),
+                backendToken,
+              );
+              // حدث في الـ array
+              deliveryman.deviceToken = backendToken;
+            }
+          }
+
+          // حدث availableDeliveryMan
+          this.availableDeliveryMan = this.Deliverymen.filter(
+            (d) => d.isAvaliable,
+          ).map((d) => ({ id: d.id as number, name: d.name }));
+        } catch (error) {
+          console.error('خطأ في جلب deviceToken من backend:', error);
+        }
+
+        this.updateMarkers();
         this.loading = false;
         this.cdr.detectChanges();
-      },
-      (err) => {
-        console.error('Realtime deliverymen error:', err);
-      }
-    );
+      });
     this.realtimeSubs.push(sub1);
 
-    // الاستماع للطلبات قيد التوصيل (مثال: status = 'in_delivery' أو حسب ما عندك)
-    const sub2 = this.realtime.getInDeliveryOrders().subscribe(
-      (orders) => {
-        // حلّل orders إلى InDeliveryOrders إذا احتجت
-        this.InDeliveryOrders = (orders || []).map((o) => ({
-          orderId: o.id,
-          clientName: o.clientName || o.clientId,
-          deliveryManName: o.deliveryManName || o.assignedDriverName,
-          amount: o.amount,
-          address: o.address,
-        }));
-        this.cdr.detectChanges();
-      },
-      (err) => {
-        console.error('Realtime InDelivery orders error:', err);
-      }
-    );
+    // باقي الاشتراكات (InDeliveryOrders) زي ما هي
+    const sub2 = this.realtime.getInDeliveryOrders().subscribe((orders) => {
+      this.InDeliveryOrders = (orders || []).map((o) => ({
+        orderId: o.id,
+        clientName: o.clientName || o.clientId,
+        deliveryManName: o.deliveryManName || o.assignedDriverName,
+        amount: o.amount,
+        address: o.address,
+      }));
+      this.cdr.detectChanges();
+    });
     this.realtimeSubs.push(sub2);
 
-    // عرض الدليفري مان المتاحين فقط في السيليكت
-    const sub3 = this.realtime.getAvailableDeliverymen().subscribe(
-      (data) => {
-        // البيانات هنا عبارة عن مصفوفة من المستندات
-        // تأكد أن الحقول تتطابق (مثلاً isAvailable أو isAvaliable حسب اللي في DB)
-        this.availableDeliveryMan = data.map((d) => ({
-          id: d.id,
-          name: d.name,
-        }));
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      (err) => {
-        console.error('Realtime availableDeliveryMan error:', err);
-      }
-    );
-    this.realtimeSubs.push(sub3);
-
-    // لاحظ أننا لم نعد بحاجة لاستدعاء fetchAllDeliverymen() إذا اعتمدت كلياً على Firestore
-
-    //this.fetchAvailableDeliveryMan();
     this.fetchClients();
-    //this.fetchAllDeliverymen();
-    //this.fetchInDeliveryOrders();
+  }
+
+  private updateMarkers(): void {
+    this.markers = this.Deliverymen.map((d) => ({
+      position: { lat: d.lat || 30.0444, lng: d.lng || 31.2357 },
+      label: d.name.charAt(0),
+      title: `${d.name} (${d.isAvaliable ? 'جاهز' : 'غير متاح'})`,
+      info: `ID: ${d.id}, Token: ${d.deviceToken ? 'متاح' : 'غير متاح'}`, // default string
+      icon: d.isAvaliable
+        ? 'https://maps.google.com/mapfiles/ms/icons/green-dot.png'
+        : 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+    }));
+    this.cdr.detectChanges();
+  }
+
+  // دالة للضغط على marker (بالفعل عندك openInfo)
+  openInfo(event: google.maps.MapMouseEvent | null, content: string) {
+    if (!event || !event.latLng || !this.googleMap?.googleMap) {
+      console.warn('No map or latLng available');
+      return;
+    }
+
+    const infoWindow = new google.maps.InfoWindow({
+      content: `<h3>${content}</h3>`,
+      position: event.latLng,
+    });
+
+    // افتح الـ InfoWindow على الـ map نفسه
+    infoWindow.open({
+      map: this.googleMap.googleMap, // هنا نستخدم الـ map reference
+    });
   }
 
   ngOnDestroy(): void {
@@ -190,7 +262,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       let totalPages = 1;
       do {
         const response = await firstValueFrom(
-          this.apiService.getAllClients(page, pageSize)
+          this.apiService.getAllClients(page, pageSize),
         );
 
         // أضف العملاء من الصفحة الحالية
@@ -345,7 +417,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       if (newOrderId) {
         // جيب الاسم من Deliverymen (اللي محدث من Firestore)
         const deliveryMan = this.Deliverymen.find(
-          (d) => Number(d.id) === +this.order.deliveryManId
+          (d) => Number(d.id) === +this.order.deliveryManId,
         );
         const deliveryManName = deliveryMan?.name || 'غير معروف';
 
@@ -401,7 +473,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this.apiService.getAllDeliverymen(1, 3).subscribe({
       next: (
-        response: DeliverymenResponse | { error: boolean; message: string }
+        response: DeliverymenResponse | { error: boolean; message: string },
       ) => {
         console.log('API Response in Component deliveryDashboard:', response);
         if ('error' in response) {
@@ -436,7 +508,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     try {
       const response = await firstValueFrom(
-        this.apiService.getInDeliveryOrders()
+        this.apiService.getInDeliveryOrders(),
       );
       this.InDeliveryOrders = response || [];
       if (this.InDeliveryOrders.length === 0) {
@@ -449,6 +521,56 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.errorMessage = error.message || 'حدث خطأ أثناء جلب المستخدم';
     } finally {
       this.loading = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  /********************************************************************** */
+  // دالة لما تضغط على الجرس بجانب المندوب المتاح
+  async sendBell(deliverymanId: number | string) {
+    if (!confirm('هل تريد ارسال اشعار للمندوب؟')) {
+      return;
+    }
+
+    const deliveryman = this.Deliverymen.find((d) => d.id === deliverymanId);
+
+    if (!deliveryman) {
+      alert('حدث خطأ، المندوب غير موجود في القائمة حاليًا.');
+      return;
+    }
+
+    if (!deliveryman.deviceToken) {
+      // رسالة ودية وواضحة بدل "مفيش device token"
+      alert(
+        `المندوب "${deliveryman.name}" غير متصل حاليًا بالتطبيق.\n\nيرجى الانتظار حتى يقوم بفتح التطبيق على موبايله، ثم يمكنك إرسال التنبيه.`,
+      );
+      return;
+    }
+
+    this.isLoading = true;
+    this.successMessage = '';
+    this.errorMessage = '';
+
+    try {
+      const body = {
+        deviceToken: deliveryman.deviceToken,
+        title: 'طلبية جاهزة!',
+        body: 'اذهب لاستلام الطلبية من الصيدلية علي الفور',
+      };
+
+      const response = await firstValueFrom(
+        this.apiService.sendNotification(body),
+      );
+      this.successMessage = `تم إرسال التنبيه بنجاح للمندوب "${deliveryman.name}"`;
+      setTimeout(() => (this.successMessage = ''), 4000);
+    } catch (error: any) {
+      this.errorMessage = `فشل إرسال التنبيه إلى "${deliveryman.name}" \nممكن يكون موبايله مقفل أو مفيش نت، حاول مرة اخري بعد قليل .`;
+      setTimeout(() => {
+        this.errorMessage = '';
+      }, 4000);
+      console.error(error);
+    } finally {
+      this.isLoading = false;
       this.cdr.detectChanges();
     }
   }
