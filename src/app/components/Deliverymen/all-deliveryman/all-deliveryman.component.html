@@ -126,15 +126,13 @@
                   <div class="col-md-12 form-section mb-3">
                     <label for="password" class="form-label">كلمة المرور</label>
                     <input [type]="showPassword ? 'text' : 'password'" placeholder="ادخل كلمة المرور" id="password"
-                      class="form-control" name="password" [(ngModel)]="deliverymen.password" required minlength="8"
-                      pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{8,}$" #password="ngModel">
+                      class="form-control" name="password" [(ngModel)]="deliverymen.password" required minlength="4"
+                      #password="ngModel">
                     <span class="password-toggle" (click)="togglePassword()">
                       <i class="fa-regular {{ showPassword ? 'fa-eye-slash' : 'fa-eye' }}"
                         style="color: var(--thrid-color);"></i>
                     </span>
-                    <div class="invalid-feedback">
-                      يرجى إدخال كلمة مرور قوية: 8 أحرف على الأقل، حرف كبير، صغير، رقم، ورمز خاص
-                    </div>
+                    <div class="invalid-feedback">يرجى إدخال كلمة مرور صالحة (4 أحرف على الأقل)</div>
                     <div class="valid-feedback">يبدو جيدًا!</div>
                   </div>
                   <div class="modal-footer d-flex justify-content-around">

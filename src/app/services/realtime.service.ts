@@ -13,6 +13,7 @@ import {
   orderBy,
   DocumentData,
   setDoc,
+  deleteDoc,
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { InDeliveryOrders } from '../types/InDeliveryOrders.type';
@@ -45,7 +46,7 @@ export class RealtimeService {
     const q = query(
       ref,
       where('isAvaliable', '==', true), // فقط اللي true
-      orderBy('createdAt', 'desc')
+      orderBy('createdAt', 'desc'),
     );
     return collectionData(q, { idField: 'id' }) as Observable<allDeliverymen[]>;
   }
@@ -69,7 +70,7 @@ export class RealtimeService {
     const q = query(
       ref,
       where('status', '==', 'InDelivery'), // فقط اللي InDelivery
-      orderBy('createdAt', 'desc')
+      orderBy('createdAt', 'desc'),
     );
     return collectionData(q, { idField: 'id' }) as Observable<
       InDeliveryOrders[]
@@ -109,12 +110,12 @@ export class RealtimeService {
    * دالة مساعدة: جلب الطلبات المخصصة لسائق محدد (مثلاً لتطبيق الدليفري)
    */
   getOrdersForDriver(
-    driverId: string
+    driverId: string,
   ): Observable<(DocumentData & { id?: string })[]> {
     const q = query(
       collection(this.firestore, 'orders'),
       where('assignedDriverId', '==', driverId),
-      orderBy('createdAt', 'desc')
+      orderBy('createdAt', 'desc'),
     );
     return collectionData(q, { idField: 'id' });
   }
@@ -172,5 +173,18 @@ export class RealtimeService {
   async updateDeliverymanToken(id: string, token: string) {
     const docRef = doc(this.firestore, `deliverymen/${id}`);
     await setDoc(docRef, { deviceToken: token }, { merge: true });
+  }
+
+  async deleteDeliveryman(id: number | string): Promise<void> {
+    const idStr = String(id).trim();
+    const docRef = doc(this.firestore, 'deliverymen', idStr);
+
+    try {
+      await deleteDoc(docRef);
+      console.log(`تم حذف المندوب ${idStr} من Firestore`);
+    } catch (err) {
+      console.error(`فشل حذف المندوب ${idStr} من Firestore:`, err);
+      throw err; // نلقي الخطأ للـ caller يتعامل معاه
+    }
   }
 }
