@@ -7,6 +7,8 @@ export interface InDeliveryOrders {
   deliveryManName?: string;
   amount?: number;
   address?: string;
+  orderCode?: string | number;
+  notes?: string;
 }
 
 export type InDeliveryOrdersResponse = InDeliveryOrders[];
