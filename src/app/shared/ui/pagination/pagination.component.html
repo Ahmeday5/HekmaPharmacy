@@ -1,5 +1,5 @@
 @if (totalItems() > 0) {
-<div class="pager" [class.is-disabled]="disabled()">
+<div class="pager" [class.is-disabled]="disabled()" [class.flush]="!framed()">
   <p class="pager-summary">
     عرض <strong>{{ rangeStart() }}–{{ rangeEnd() }}</strong> من <strong>{{ totalItems() }}</strong>
   </p>

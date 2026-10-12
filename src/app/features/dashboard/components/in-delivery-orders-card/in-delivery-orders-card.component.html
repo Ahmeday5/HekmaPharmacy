@@ -1,0 +1,43 @@
+<app-card title="قيد التوصيل" icon="fa-truck-fast" subtitle="طلبات في الطريق للعملاء الآن">
+  <ng-container cardActions>
+    @if (orders(); as list) {
+    <span class="count-pill">{{ list.length }}</span>
+    }
+  </ng-container>
+
+  @if (orders() === null) {
+  <ul class="panel-list" aria-busy="true" aria-label="جاري تحميل الطلبات">
+    @for (item of placeholders; track item) {
+    <li class="order-item">
+      <app-skeleton width="50%" />
+      <app-skeleton width="85%" />
+      <app-skeleton width="65%" />
+    </li>
+    }
+  </ul>
+  } @else {
+  <ul class="panel-list">
+    @for (order of orders(); track order.id) {
+    <li class="order-item">
+      <div class="order-row">
+        <strong class="order-code">{{ order.orderCode || '#' + order.id }}</strong>
+        @if (order.amount !== null) {
+        <span class="order-amount">{{ order.amount | number: '1.0-2' }} ج.م</span>
+        }
+      </div>
+      <div class="order-route">
+        <span><i class="fa-solid fa-motorcycle" aria-hidden="true"></i> {{ order.deliverymanName || 'مندوب غير معروف' }}</span>
+        <i class="fa-solid fa-arrow-left-long route-arrow" aria-hidden="true"></i>
+        <span><i class="fa-solid fa-user" aria-hidden="true"></i> {{ order.clientName || '—' }}</span>
+      </div>
+      <p class="order-address"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{ order.address || '—' }}</p>
+    </li>
+    } @empty {
+    <li class="panel-state">
+      <i class="fa-regular fa-circle-check"></i>
+      لا توجد طلبات قيد التوصيل حاليًا
+    </li>
+    }
+  </ul>
+  }
+</app-card>

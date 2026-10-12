@@ -1,39 +1,50 @@
 <section class="page">
-  <app-page-header title="إدارة المندوبين" subtitle="بيانات المندوبين وحالتهم وإرسال التنبيهات" icon="fa-motorcycle">
+  <app-page-header title="إدارة المندوبين" subtitle="بيانات المندوبين وحالتهم اللحظية وإرسال التنبيهات"
+    icon="fa-motorcycle">
     <button type="button" class="btn btn-brand-primary" (click)="formModal.openCreate()">
       <i class="fa-solid fa-plus"></i> إضافة مندوب
     </button>
   </app-page-header>
 
-  <div class="filters-bar">
-    <app-search-input placeholder="ابحث باسم المندوب..." [value]="list.filters().name"
-      (search)="list.updateFilters({ name: $event })" />
-    <app-search-input placeholder="ابحث بالبريد الإلكتروني..." [value]="list.filters().email"
-      (search)="list.updateFilters({ email: $event })" />
+  <div class="stats-grid">
+    <app-stat-card label="إجمالي المندوبين" icon="fa-users" tone="primary" [value]="stats().total" />
+    <app-stat-card label="متاحين الآن" icon="fa-circle-check" tone="success" [value]="stats().available"
+      [progress]="stats().availableRate" hint="جاهزين لاستلام طلبات" />
+    <app-stat-card label="خارج الخدمة" icon="fa-user-slash" tone="danger" [value]="stats().offline"
+      hint="غير متاحين حاليًا" />
+    <app-stat-card label="بموقع مباشر" icon="fa-location-crosshairs" tone="info" [value]="stats().tracked"
+      hint="بيبعتوا موقعهم لحظيًا" />
   </div>
 
-  <app-data-table [columns]="columns" [rows]="list.items()" [loading]="list.loading()"
-    [skeletonRowCount]="list.pageSize()"
-    [errorMessage]="list.error()" [rowOffset]="list.rowOffset()" [editable]="true" [deletable]="true"
-    [emptyMessage]="list.hasFilters() ? 'لا يوجد مندوبين يطابقون البحث' : 'لا يوجد مندوبين بعد'"
-    (edit)="formModal.openEdit($event)" (remove)="remove($event)">
-    <ng-template appTableCell="image" let-deliveryman>
-      <button type="button" class="avatar-button" (click)="imagePreview.set(deliveryman)"
-        [attr.aria-label]="'عرض صورة ' + deliveryman.name">
-        <app-avatar [imageUrl]="deliveryman.imageUrl | apiAsset" [name]="deliveryman.name" />
-      </button>
-    </ng-template>
-    <ng-template appTableCell="status" let-deliveryman>
-      <app-availability-badge [available]="deliveryman.isAvailable" />
-    </ng-template>
-    <ng-template appTableCell="notify" let-deliveryman>
-      <app-notify-button [deliveryman]="deliveryman" />
-    </ng-template>
-  </app-data-table>
+  <app-list-view [list]="list" itemLabel="مندوب" [filterLabels]="{ name: 'الاسم', email: 'البريد' }">
+    <app-search-input listFilters placeholder="ابحث باسم المندوب..." [value]="list.filters().name"
+      (search)="list.updateFilters({ name: $event })" />
+    <app-search-input listFilters placeholder="ابحث بالبريد الإلكتروني..." [value]="list.filters().email"
+      (search)="list.updateFilters({ email: $event })" />
 
-  <app-pagination [page]="list.page()" [totalPages]="list.totalPages()" [totalItems]="list.totalItems()"
-    [pageSize]="list.pageSize()" [disabled]="list.loading()" (pageChange)="list.setPage($event)"
-    (pageSizeChange)="list.setPageSize($event)" />
+    <app-data-table [columns]="columns" [rows]="rows()" [loading]="list.loading()"
+      [skeletonRowCount]="list.pageSize()" [errorMessage]="list.error()" [rowOffset]="list.rowOffset()"
+      [editable]="true" [deletable]="true"
+      [emptyMessage]="list.hasFilters() ? 'لا يوجد مندوبين يطابقون البحث' : 'لا يوجد مندوبين بعد — ابدأ بإضافة أول مندوب'"
+      (edit)="formModal.openEdit($event)" (remove)="remove($event)">
+      <ng-template appTableCell="deliveryman" let-deliveryman>
+        <button type="button" class="entity-button" (click)="imagePreview.set(deliveryman)"
+          [attr.aria-label]="'عرض صورة ' + deliveryman.name">
+          <app-entity-cell [title]="deliveryman.name" [subtitle]="deliveryman.email" subtitleDir="ltr"
+            [imageUrl]="deliveryman.imageUrl | apiAsset" />
+        </button>
+      </ng-template>
+      <ng-template appTableCell="code" let-deliveryman>
+        <span class="code-chip">#{{ deliveryman.id }}</span>
+      </ng-template>
+      <ng-template appTableCell="status" let-deliveryman>
+        <app-availability-badge [available]="deliveryman.isAvailable" />
+      </ng-template>
+      <ng-template appTableCell="notify" let-deliveryman>
+        <app-notify-button [deliveryman]="deliveryman" />
+      </ng-template>
+    </app-data-table>
+  </app-list-view>
 </section>
 
 @if (formModal.isOpen()) {

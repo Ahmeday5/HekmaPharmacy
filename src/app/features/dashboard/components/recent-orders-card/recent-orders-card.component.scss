@@ -1,0 +1,59 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+app-card {
+  flex: 1;
+  min-height: 0;
+}
+
+.order-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.25rem;
+  border-bottom: 1px solid var(--color-border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.order-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+
+  p {
+    margin: 0;
+    overflow: hidden;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+.order-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+
+  strong {
+    color: var(--color-primary);
+  }
+}
+
+.order-amount {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.sep {
+  margin: 0 0.25rem;
+  opacity: 0.6;
+}

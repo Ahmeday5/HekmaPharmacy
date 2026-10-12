@@ -5,25 +5,29 @@
     </button>
   </app-page-header>
 
-  <div class="filters-bar">
-    <app-search-input placeholder="ابحث بالاسم أو البريد الإلكتروني..." [value]="list.filters().search"
+  <app-list-view [list]="list" itemLabel="مستخدم" [filterLabels]="filterLabels" [filterFormatters]="filterFormatters">
+    <app-search-input listFilters placeholder="ابحث بالاسم أو البريد الإلكتروني..." [value]="list.filters().search"
       (search)="list.updateFilters({ search: $event })" />
-  </div>
+    <app-segmented-control listFilters ariaLabel="فلترة حسب الدور" [options]="roleOptions"
+      [value]="list.filters().role" (valueChange)="list.updateFilters({ role: $event })" />
 
-  <app-data-table [columns]="columns" [rows]="list.items()" [loading]="list.loading()"
-    [skeletonRowCount]="list.pageSize()"
-    [errorMessage]="list.error()" [rowOffset]="list.rowOffset()" [editable]="true" [deletable]="true"
-    [emptyMessage]="list.hasFilters() ? 'لا يوجد مستخدمين يطابقون البحث' : 'لا يوجد مستخدمين بعد'"
-    (edit)="formModal.openEdit($event)" (remove)="remove($event)">
-    <ng-template appTableCell="role" let-admin>
-      <span class="badge-status" [class.badge-success]="admin.role === 'Admin'"
-        [class.badge-info]="admin.role === 'Editor'" [class.badge-neutral]="!admin.role">{{ roleLabel(admin.role) }}</span>
-    </ng-template>
-  </app-data-table>
+    <app-data-table [columns]="columns" [rows]="list.items()" [loading]="list.loading()"
+      [skeletonRowCount]="list.pageSize()" [errorMessage]="list.error()" [rowOffset]="list.rowOffset()"
+      [editable]="true" [deletable]="true"
+      [emptyMessage]="list.hasFilters() ? 'لا يوجد مستخدمين يطابقون الفلاتر' : 'لا يوجد مستخدمين بعد'"
+      (edit)="formModal.openEdit($event)" (remove)="remove($event)">
+      <ng-template appTableCell="user" let-admin>
+        <app-entity-cell [title]="admin.userName || admin.email" [subtitle]="admin.email" subtitleDir="ltr" />
+      </ng-template>
 
-  <app-pagination [page]="list.page()" [totalPages]="list.totalPages()" [totalItems]="list.totalItems()"
-    [pageSize]="list.pageSize()" [disabled]="list.loading()" (pageChange)="list.setPage($event)"
-    (pageSizeChange)="list.setPageSize($event)" />
+      <ng-template appTableCell="role" let-admin>
+        <span class="badge-status" [class.badge-success]="admin.role === 'Admin'"
+          [class.badge-info]="admin.role === 'Editor'" [class.badge-neutral]="!admin.role">
+          {{ roleLabel(admin.role) }}
+        </span>
+      </ng-template>
+    </app-data-table>
+  </app-list-view>
 </section>
 
 @if (formModal.isOpen()) {

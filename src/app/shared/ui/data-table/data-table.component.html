@@ -1,4 +1,4 @@
-<div class="table-card" [class.is-refreshing]="isRefreshing()" [attr.aria-busy]="loading()">
+<div class="table-card" [class.embedded]="embedded" [class.is-refreshing]="isRefreshing()" [attr.aria-busy]="loading()">
   @if (isRefreshing()) {
   <div class="table-progress" role="progressbar" aria-label="جاري تحديث البيانات"></div>
   }
@@ -10,7 +10,9 @@
           <th class="col-index">#</th>
           }
           @for (column of columns(); track column.key) {
-          <th>{{ column.header }}</th>
+          <th scope="col" [class]="'align-' + (column.align ?? 'start')" [style.min-width]="column.minWidth">
+            {{ column.header }}
+          </th>
           }
           @if (hasActions()) {
           <th class="col-actions">الإجراءات</th>
@@ -34,7 +36,8 @@
           <td class="col-index" data-label="#">{{ rowOffset() + i + 1 }}</td>
           }
           @for (column of columns(); track column.key) {
-          <td [attr.data-label]="column.header" [class.nowrap]="column.nowrap">
+          <td [attr.data-label]="column.header" [class]="'align-' + (column.align ?? 'start')"
+            [class.nowrap]="column.nowrap">
             @if (templatesByColumn().get(column.key); as template) {
             <ng-container *ngTemplateOutlet="template; context: { $implicit: row, index: i }"></ng-container>
             } @else {

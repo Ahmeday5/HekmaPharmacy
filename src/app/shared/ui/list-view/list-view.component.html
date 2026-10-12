@@ -1,0 +1,43 @@
+<section class="list-view" [attr.aria-busy]="list().loading()">
+  <div class="list-toolbar">
+    <div class="list-filters">
+      <ng-content select="[listFilters]"></ng-content>
+    </div>
+    <div class="list-tools">
+      <ng-content select="[listTools]"></ng-content>
+      <button type="button" class="btn-icon" (click)="list().refresh()" [disabled]="list().loading()"
+        title="تحديث البيانات" aria-label="تحديث البيانات">
+        <i class="fa-solid fa-arrows-rotate" [class.fa-spin]="list().loading()" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="list-summary" aria-live="polite">
+    <span class="list-count">
+      @if (list().initialized()) {
+      <strong>{{ list().totalItems() }}</strong> {{ itemLabel() }}
+      } @else {
+      جاري التحميل...
+      }
+    </span>
+
+    @for (chip of activeFilters(); track chip.key) {
+    <span class="filter-chip">
+      <span class="filter-chip-label">{{ chip.label }}:</span> {{ chip.value }}
+      <button type="button" (click)="clearFilter(chip.key)" [attr.aria-label]="'إزالة فلتر ' + chip.label">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </span>
+    }
+
+    @if (activeFilters().length > 1) {
+    <button type="button" class="clear-all" (click)="list().resetFilters()">مسح كل الفلاتر</button>
+    }
+  </div>
+
+  <ng-content></ng-content>
+
+  <app-pagination [framed]="false" [page]="list().page()" [totalPages]="list().totalPages()"
+    [totalItems]="list().totalItems()" [pageSize]="list().pageSize()" [disabled]="list().loading()"
+    (pageChange)="list().setPage($event)" (pageSizeChange)="list().setPageSize($event)" />
+</section>

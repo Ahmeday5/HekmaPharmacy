@@ -1,6 +1,6 @@
 export const ADMIN_ROLES = [
-  { value: 'Admin', label: 'مدير (Admin)' },
-  { value: 'Editor', label: 'محرر (Editor)' },
+  { value: 'Admin', label: 'مدير (Admin)', shortLabel: 'مدير' },
+  { value: 'Editor', label: 'محرر (Editor)', shortLabel: 'محرر' },
 ] as const;
 
 export type AdminRole = (typeof ADMIN_ROLES)[number]['value'];
@@ -10,8 +10,9 @@ export function normalizeAdminRole(role: string): string {
   return ADMIN_ROLES.find((r) => r.value.toLowerCase() === role.toLowerCase())?.value ?? role;
 }
 
+/** الاسم المختصر للدور (للجداول والفلاتر) */
 export function adminRoleLabel(role: string): string {
-  return ADMIN_ROLES.find((r) => r.value === role)?.label ?? (role || 'بدون دور');
+  return ADMIN_ROLES.find((r) => r.value === role)?.shortLabel ?? (role || 'بدون دور');
 }
 
 export interface Admin {
@@ -24,6 +25,8 @@ export interface Admin {
 
 export type AdminFilters = {
   search: string;
+  /** '' = كل الأدوار */
+  role: string;
 };
 
 export interface CreateAdminPayload {

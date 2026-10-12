@@ -6,7 +6,8 @@ import { DataTableComponent } from '../../../../shared/ui/data-table/data-table.
 import { TableCellDirective } from '../../../../shared/ui/data-table/table-cell.directive';
 import { TableColumn } from '../../../../shared/ui/data-table/table-column.model';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
-import { PaginationComponent } from '../../../../shared/ui/pagination/pagination.component';
+import { EntityCellComponent } from '../../../../shared/ui/entity-cell/entity-cell.component';
+import { ListViewComponent } from '../../../../shared/ui/list-view/list-view.component';
 import { SearchInputComponent } from '../../../../shared/ui/search-input/search-input.component';
 import { ClientFormModalComponent } from '../../components/client-form-modal/client-form-modal.component';
 import { Client, ClientFilters } from '../../data-access/client.models';
@@ -20,7 +21,8 @@ import { ClientsApi } from '../../data-access/clients.api';
     SearchInputComponent,
     DataTableComponent,
     TableCellDirective,
-    PaginationComponent,
+    ListViewComponent,
+    EntityCellComponent,
     ClientFormModalComponent,
   ],
   templateUrl: './clients-page.component.html',
@@ -39,13 +41,10 @@ export class ClientsPageComponent implements OnInit {
   protected readonly formModal = new EntityModalState<Client>();
 
   protected readonly columns: TableColumn<Client>[] = [
-    { key: 'clientCode', header: 'كود العميل', nowrap: true },
-    { key: 'name', header: 'اسم العميل' },
-    { key: 'phoneNumber', header: 'رقم التليفون', nowrap: true },
-    { key: 'phoneNumber02', header: 'رقم التليفون 2', nowrap: true },
-    { key: 'address', header: 'العنوان' },
-    { key: 'address02', header: 'العنوان 2' },
-    { key: 'location', header: 'الموقع الجغرافي' },
+    { key: 'client', header: 'العميل', minWidth: '14rem' },
+    { key: 'phones', header: 'أرقام التواصل', nowrap: true },
+    { key: 'address', header: 'العنوان', minWidth: '14rem' },
+    { key: 'location', header: 'الموقع الجغرافي', nowrap: true },
   ];
 
   ngOnInit(): void {

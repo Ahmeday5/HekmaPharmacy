@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
+import { CardComponent } from '../../../../shared/ui/card/card.component';
 import { LiveDeliveryman } from '../../../deliverymen/data-access/deliveryman.models';
 
 const PHARMACY_MAP_EMBED_URL =
@@ -24,6 +25,7 @@ const PHARMACY_MAP_EMBED_URL =
 @Component({
   selector: 'app-live-map',
   standalone: true,
+  imports: [CardComponent],
   templateUrl: './live-map.component.html',
   styleUrl: './live-map.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,16 +38,17 @@ export class LiveMapComponent {
 
   protected readonly mapUrl = inject(DomSanitizer).bypassSecurityTrustResourceUrl(PHARMACY_MAP_EMBED_URL);
   protected readonly fullscreen = signal(false);
-  protected readonly availableCount = computed(
-    () => this.deliverymen()?.filter((d) => d.isAvailable).length ?? null,
-  );
-  protected readonly trackedCount = computed(
-    () => this.deliverymen()?.filter((d) => d.lat !== null && d.lng !== null).length ?? null,
-  );
+  protected readonly availableCount = computed(() => this.count((d) => d.isAvailable));
+  protected readonly offlineCount = computed(() => this.count((d) => !d.isAvailable));
+  protected readonly trackedCount = computed(() => this.count((d) => d.lat !== null && d.lng !== null));
 
   @HostListener('document:fullscreenchange')
   protected onFullscreenChange(): void {
     this.fullscreen.set(document.fullscreenElement === this.host.nativeElement);
+  }
+
+  private count(predicate: (deliveryman: LiveDeliveryman) => boolean): number {
+    return this.deliverymen()?.filter(predicate).length ?? 0;
   }
 
   protected toggleFullscreen(): void {

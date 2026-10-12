@@ -1,16 +1,19 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
 import { ActionRunner } from '../../../../shared/data-access/action-runner.service';
 import { EntityModalState } from '../../../../shared/data-access/entity-modal-state';
 import { createPaginatedList } from '../../../../shared/data-access/paginated-list';
 import { ApiAssetPipe } from '../../../../shared/pipes/api-asset.pipe';
-import { AvatarComponent } from '../../../../shared/ui/avatar/avatar.component';
 import { DataTableComponent } from '../../../../shared/ui/data-table/data-table.component';
 import { TableCellDirective } from '../../../../shared/ui/data-table/table-cell.directive';
 import { TableColumn } from '../../../../shared/ui/data-table/table-column.model';
 import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
-import { PaginationComponent } from '../../../../shared/ui/pagination/pagination.component';
+import { EntityCellComponent } from '../../../../shared/ui/entity-cell/entity-cell.component';
+import { ListViewComponent } from '../../../../shared/ui/list-view/list-view.component';
 import { SearchInputComponent } from '../../../../shared/ui/search-input/search-input.component';
+import { StatCardComponent } from '../../../../shared/ui/stat-card/stat-card.component';
 import { ToastService } from '../../../../shared/ui/toast/toast.service';
 import { AvailabilityBadgeComponent } from '../../components/availability-badge/availability-badge.component';
 import { DeliverymanFormModalComponent } from '../../components/deliveryman-form-modal/deliveryman-form-modal.component';
@@ -24,15 +27,16 @@ import { DeliverymenRealtimeService } from '../../data-access/deliverymen-realti
   standalone: true,
   imports: [
     ApiAssetPipe,
-    AvatarComponent,
     AvailabilityBadgeComponent,
     DataTableComponent,
     DeliverymanFormModalComponent,
+    EntityCellComponent,
+    ListViewComponent,
     ModalComponent,
     NotifyButtonComponent,
     PageHeaderComponent,
-    PaginationComponent,
     SearchInputComponent,
+    StatCardComponent,
     TableCellDirective,
   ],
   templateUrl: './deliverymen-page.component.html',
@@ -54,13 +58,37 @@ export class DeliverymenPageComponent implements OnInit {
   protected readonly formModal = new EntityModalState<Deliveryman>();
   protected readonly imagePreview = signal<Deliveryman | null>(null);
 
+  /** الحالة والموقع لحظيًا من Firestore — null لحد ما يوصل أول تحديث */
+  private readonly live = toSignal(this.realtime.watchAll().pipe(catchError(() => of(null))), {
+    initialValue: null,
+  });
+
+  /** بيانات الجدول من الـ API، والإتاحة بتتحدث لحظيًا من Firestore */
+  protected readonly rows = computed(() => {
+    const availability = new Map((this.live() ?? []).map((d) => [d.id, d.isAvailable]));
+    return this.list.items().map((d) => ({ ...d, isAvailable: availability.get(d.id) ?? d.isAvailable }));
+  });
+
+  protected readonly stats = computed(() => {
+    const live = this.live();
+    if (!live) {
+      return { total: null, available: null, offline: null, tracked: null, availableRate: null };
+    }
+    const available = live.filter((d) => d.isAvailable).length;
+    return {
+      total: live.length,
+      available,
+      offline: live.length - available,
+      tracked: live.filter((d) => d.lat !== null && d.lng !== null).length,
+      availableRate: live.length ? Math.round((available / live.length) * 100) : 0,
+    };
+  });
+
   protected readonly columns: TableColumn<Deliveryman>[] = [
-    { key: 'image', header: 'الصورة' },
-    { key: 'id', header: 'كود المندوب', nowrap: true },
-    { key: 'name', header: 'اسم المندوب' },
-    { key: 'email', header: 'البريد الإلكتروني' },
-    { key: 'status', header: 'الحالة' },
-    { key: 'notify', header: 'تنبيه' },
+    { key: 'deliveryman', header: 'المندوب', minWidth: '16rem' },
+    { key: 'code', header: 'الكود', nowrap: true },
+    { key: 'status', header: 'الحالة', nowrap: true },
+    { key: 'notify', header: 'تنبيه', align: 'center' },
   ];
 
   ngOnInit(): void {

@@ -1,8 +1,12 @@
-.avatar-button {
+// الضغط على المندوب بيفتح صورته
+.entity-button {
+  max-width: 100%;
   padding: 0;
   border: 0;
   background: transparent;
-  border-radius: 50%;
+  text-align: start;
+  border-radius: var(--radius-sm);
+  cursor: zoom-in;
 }
 
 .image-preview {

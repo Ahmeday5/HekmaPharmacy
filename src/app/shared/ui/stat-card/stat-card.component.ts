@@ -25,16 +25,24 @@ export type StatTone = 'primary' | 'success' | 'info' | 'warning' | 'danger';
       <span class="stat-hint">{{ hint() }}</span>
       }
     </div>
+    @if (progress() !== null) {
+    <div class="stat-progress" role="progressbar" [attr.aria-valuenow]="progress()" aria-valuemin="0"
+      aria-valuemax="100">
+      <span [style.width.%]="progress()"></span>
+    </div>
+    }
   `,
   host: { '[class]': '"tone-" + tone()' },
   styles: `
     :host {
       --tone: var(--color-primary);
       --tone-soft: var(--color-primary-soft);
+      position: relative;
       display: flex;
       align-items: center;
       gap: 0.875rem;
       padding: 1rem 1.125rem;
+      overflow: hidden;
       background: var(--color-surface);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-md);
@@ -74,6 +82,19 @@ export type StatTone = 'primary' | 'success' | 'info' | 'warning' | 'danger';
       color: var(--color-text);
       font-variant-numeric: tabular-nums;
     }
+    .stat-progress {
+      position: absolute;
+      inset-inline: 0;
+      bottom: 0;
+      height: 0.25rem;
+      background: var(--tone-soft);
+    }
+    .stat-progress span {
+      display: block;
+      height: 100%;
+      background: var(--tone);
+      transition: width 0.4s ease;
+    }
     .stat-hint {
       overflow: hidden;
       font-size: 0.75rem;
@@ -90,4 +111,6 @@ export class StatCardComponent {
   readonly value = input.required<string | number | null>();
   readonly hint = input<string>();
   readonly tone = input<StatTone>('primary');
+  /** نسبة 0-100 بتظهر كشريط تحت الكارت (null = مفيش) */
+  readonly progress = input<number | null>(null);
 }

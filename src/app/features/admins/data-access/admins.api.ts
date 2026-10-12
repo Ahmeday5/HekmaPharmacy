@@ -35,14 +35,11 @@ export class AdminsApi {
     const term = filters.search.trim().toLowerCase();
     return this.getAll().pipe(
       map((admins) =>
-        term
-          ? admins.filter(
-              (a) =>
-                a.email.toLowerCase().includes(term) ||
-                a.userName.toLowerCase().includes(term) ||
-                a.role.toLowerCase().includes(term),
-            )
-          : admins,
+        admins.filter(
+          (a) =>
+            (!filters.role || a.role === filters.role) &&
+            (!term || a.email.toLowerCase().includes(term) || a.userName.toLowerCase().includes(term)),
+        ),
       ),
       map((admins) => paginateLocally(admins, { page, pageSize })),
     );

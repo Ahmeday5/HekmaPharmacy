@@ -1,27 +1,23 @@
-<iframe class="map-frame" [src]="mapUrl" title="خريطة تتبع المندوبين" loading="lazy"
-  referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+<app-card class="map-card" title="التتبع المباشر" icon="fa-map-location-dot"
+  subtitle="مواقع المندوبين وحالتهم لحظة بلحظة" [flush]="true">
+  <ng-container cardActions>
+    <span class="live-badge"><span class="live-dot" aria-hidden="true"></span> مباشر</span>
+    @if (deliverymen() !== null) {
+    <ul class="legend" aria-label="ملخص المندوبين">
+      <li><span class="legend-dot available"></span> متاح <strong>{{ availableCount() }}</strong></li>
+      <li><span class="legend-dot offline"></span> خارج الخدمة <strong>{{ offlineCount() }}</strong></li>
+      <li><i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i> بموقع مباشر <strong>{{ trackedCount() }}</strong></li>
+    </ul>
+    }
+    <button type="button" class="btn-icon" (click)="toggleFullscreen()"
+      [attr.aria-label]="fullscreen() ? 'الخروج من ملء الشاشة' : 'عرض الخريطة بملء الشاشة'"
+      [title]="fullscreen() ? 'الخروج من ملء الشاشة' : 'ملء الشاشة'">
+      <i class="fa-solid" [class.fa-expand]="!fullscreen()" [class.fa-compress]="fullscreen()" aria-hidden="true"></i>
+    </button>
+  </ng-container>
 
-<div class="map-overlay map-overlay-top">
-  <button type="button" class="map-control" (click)="toggleFullscreen()"
-    [attr.aria-label]="fullscreen() ? 'الخروج من ملء الشاشة' : 'عرض الخريطة بملء الشاشة'"
-    [title]="fullscreen() ? 'الخروج من ملء الشاشة' : 'ملء الشاشة'">
-    <i class="fa-solid" [class.fa-expand]="!fullscreen()" [class.fa-compress]="fullscreen()" aria-hidden="true"></i>
-  </button>
-  <div class="map-chip">
-    <span class="live-dot" aria-hidden="true"></span>
-    <strong>التتبع المباشر</strong>
+  <div class="map-surface">
+    <iframe class="map-frame" [src]="mapUrl" title="خريطة تتبع المندوبين" loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
   </div>
-  @if (availableCount() !== null) {
-  <div class="map-chip">
-    <i class="fa-solid fa-motorcycle" aria-hidden="true"></i>
-    {{ availableCount() }} مندوب متاح
-  </div>
-  }
-  @if (trackedCount() !== null) {
-  <div class="map-chip">
-    <i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i>
-    {{ trackedCount() }} بموقع مباشر
-  </div>
-  }
-</div>
-
+</app-card>

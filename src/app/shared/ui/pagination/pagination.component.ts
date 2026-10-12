@@ -25,6 +25,8 @@ export class PaginationComponent {
   readonly siblingCount = input(1);
   readonly boundaryCount = input(1);
   readonly disabled = input(false);
+  /** false = جوه كارت تاني (app-list-view) من غير إطار خاص بيه */
+  readonly framed = input(true);
 
   readonly pageChange = output<number>();
   readonly pageSizeChange = output<number>();

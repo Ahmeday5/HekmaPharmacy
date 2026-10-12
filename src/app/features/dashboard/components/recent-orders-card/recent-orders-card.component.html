@@ -1,0 +1,52 @@
+<app-card title="أحدث الطلبات" icon="fa-receipt" subtitle="آخر الطلبات المسجلة بحالتها اللحظية">
+  <ng-container cardActions>
+    <a class="btn btn-brand-light btn-sm" routerLink="/orders">
+      عرض الكل <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+    </a>
+  </ng-container>
+
+  @if (error()) {
+  <div class="panel-state">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    تعذر تحميل أحدث الطلبات
+  </div>
+  } @else if (orders() === null) {
+  <ul class="panel-list" aria-busy="true" aria-label="جاري تحميل الطلبات">
+    @for (item of placeholders; track item) {
+    <li class="order-row">
+      <div class="order-main">
+        <app-skeleton width="45%" />
+        <app-skeleton width="70%" />
+      </div>
+      <app-skeleton variant="rect" width="4.5rem" height="1.4rem" />
+    </li>
+    }
+  </ul>
+  } @else {
+  <ul class="panel-list">
+    @for (order of orders(); track order.id) {
+    <li class="order-row">
+      <div class="order-main">
+        <div class="order-title">
+          <strong>{{ order.orderCode || '#' + order.id }}</strong>
+          <span class="order-amount">{{ order.amount | number: '1.0-2' }} ج.م</span>
+        </div>
+        <p>
+          {{ order.clientName || '—' }}
+          <span class="sep" aria-hidden="true">•</span>
+          {{ order.deliverymanName || '—' }}
+          <span class="sep" aria-hidden="true">•</span>
+          {{ order.orderDate | date: 'HH:mm' }}
+        </p>
+      </div>
+      <app-order-status-badge [status]="order.status" />
+    </li>
+    } @empty {
+    <li class="panel-state">
+      <i class="fa-regular fa-folder-open"></i>
+      لا توجد طلبات بعد
+    </li>
+    }
+  </ul>
+  }
+</app-card>

@@ -4,11 +4,13 @@ import {
   Component,
   computed,
   contentChildren,
+  inject,
   input,
   output,
   TemplateRef,
 } from '@angular/core';
 import { SkeletonComponent } from '../skeleton/skeleton.component';
+import { EMBEDDED_TABLE } from './embedded-table.token';
 import { TableCellContext, TableCellDirective } from './table-cell.directive';
 import { TableColumn } from './table-column.model';
 
@@ -47,6 +49,8 @@ export class DataTableComponent<T extends object> {
   readonly remove = output<T>();
 
   private readonly cellTemplates = contentChildren(TableCellDirective);
+  /** جوه app-list-view بيترسم من غير إطار */
+  protected readonly embedded = inject(EMBEDDED_TABLE, { optional: true }) ?? false;
 
   protected readonly skeletonRows = computed(() =>
     Array.from({ length: Math.min(this.skeletonRowCount(), 10) }, (_, i) => i),

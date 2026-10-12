@@ -12,6 +12,13 @@
   &.is-disabled {
     opacity: 0.7;
   }
+
+  &.flush {
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    border-radius: 0;
+    background: var(--color-surface-muted);
+  }
 }
 
 .pager-summary {

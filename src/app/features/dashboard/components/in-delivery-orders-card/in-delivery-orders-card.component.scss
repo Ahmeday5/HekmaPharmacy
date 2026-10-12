@@ -1,0 +1,57 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+app-card {
+  flex: 1;
+  min-height: 0;
+}
+
+.order-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  border-inline-start: 3px solid var(--color-info);
+  background: var(--color-surface-muted);
+}
+
+.order-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.order-code {
+  color: var(--color-primary);
+}
+
+.order-amount {
+  font-weight: 800;
+}
+
+.order-route {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-size: 0.875rem;
+
+  i {
+    color: var(--color-text-muted);
+  }
+
+  .route-arrow {
+    font-size: 0.75rem;
+  }
+}
+
+.order-address {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}

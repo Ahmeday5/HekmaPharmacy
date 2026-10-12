@@ -1,17 +1,18 @@
 import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { CardComponent } from '../../../../shared/ui/card/card.component';
 import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
 import { InDeliveryOrder } from '../../../orders/data-access/order.models';
 
 @Component({
-  selector: 'app-in-delivery-orders-list',
+  selector: 'app-in-delivery-orders-card',
   standalone: true,
-  imports: [DecimalPipe, SkeletonComponent],
-  templateUrl: './in-delivery-orders-list.component.html',
-  styleUrl: './in-delivery-orders-list.component.scss',
+  imports: [CardComponent, DecimalPipe, SkeletonComponent],
+  templateUrl: './in-delivery-orders-card.component.html',
+  styleUrl: './in-delivery-orders-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InDeliveryOrdersListComponent {
+export class InDeliveryOrdersCardComponent {
   /** null = لسه بيحمل */
   readonly orders = input.required<InDeliveryOrder[] | null>();
 

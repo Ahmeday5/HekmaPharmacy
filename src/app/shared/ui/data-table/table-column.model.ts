@@ -6,4 +6,8 @@ export interface TableColumn<T> {
   value?: (row: T) => string | number | null | undefined;
   /** يمنع كسر النص (للأكواد والأرقام والتواريخ) */
   nowrap?: boolean;
+  /** محاذاة المحتوى — الافتراضي start (يمين في RTL) */
+  align?: 'start' | 'center' | 'end';
+  /** أقل عرض للعمود (مثلًا '14rem') عشان الأعمدة المهمة ما تتزنقش */
+  minWidth?: string;
 }

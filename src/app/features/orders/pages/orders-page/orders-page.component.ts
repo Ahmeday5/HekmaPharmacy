@@ -1,21 +1,28 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { catchError, distinctUntilChanged, map, of, switchMap } from 'rxjs';
 import { ActionRunner } from '../../../../shared/data-access/action-runner.service';
 import { EntityModalState } from '../../../../shared/data-access/entity-modal-state';
 import { createPaginatedList } from '../../../../shared/data-access/paginated-list';
 import { DataTableComponent } from '../../../../shared/ui/data-table/data-table.component';
 import { TableCellDirective } from '../../../../shared/ui/data-table/table-cell.directive';
 import { TableColumn } from '../../../../shared/ui/data-table/table-column.model';
+import { EntityCellComponent } from '../../../../shared/ui/entity-cell/entity-cell.component';
+import { ListViewComponent } from '../../../../shared/ui/list-view/list-view.component';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
-import { PaginationComponent } from '../../../../shared/ui/pagination/pagination.component';
 import { SearchInputComponent } from '../../../../shared/ui/search-input/search-input.component';
+import {
+  SegmentedControlComponent,
+  SegmentOption,
+} from '../../../../shared/ui/segmented-control/segmented-control.component';
+import { shiftDays, toIsoDate } from '../../../../shared/utils/date.util';
 import { OrderFormModalComponent } from '../../components/order-form-modal/order-form-modal.component';
 import { OrderStatusBadgeComponent } from '../../components/order-status-badge/order-status-badge.component';
 import { Order, OrderFilters } from '../../data-access/order.models';
 import { OrdersApi } from '../../data-access/orders.api';
 import { OrdersRealtimeService } from '../../data-access/orders-realtime.service';
+
+const DISPLAY_DATE = new Intl.DateTimeFormat('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' });
 
 @Component({
   selector: 'app-orders-page',
@@ -25,9 +32,11 @@ import { OrdersRealtimeService } from '../../data-access/orders-realtime.service
     DecimalPipe,
     PageHeaderComponent,
     SearchInputComponent,
+    SegmentedControlComponent,
+    ListViewComponent,
     DataTableComponent,
     TableCellDirective,
-    PaginationComponent,
+    EntityCellComponent,
     OrderFormModalComponent,
     OrderStatusBadgeComponent,
   ],
@@ -48,41 +57,33 @@ export class OrdersPageComponent implements OnInit {
   });
   protected readonly formModal = new EntityModalState<Order>();
 
-  /**
-   * كل بيانات الطلب من الـ API ما عدا الحالة: بنسمعها live من Firestore
-   * للطلبات الظاهرة في الصفحة الحالية بس. switchMap بيلغي الاستماع القديم مع كل صفحة/بحث.
-   */
-  private readonly liveStatuses = toSignal(
-    toObservable(this.list.items).pipe(
-      map((orders) => orders.map((order) => order.id)),
-      distinctUntilChanged((a, b) => a.join() === b.join()),
-      switchMap((ids) =>
-        this.realtime.watchStatuses(ids).pipe(
-          // لو Firestore وقع الجدول يفضل شغال بحالة الـ API
-          catchError(() => of(new Map<string, string>())),
-        ),
-      ),
-    ),
-    { initialValue: new Map<string, string>() },
+  /** الصفوف من الـ API، والحالة بتتحدث لحظيًا من Firestore */
+  private readonly liveOrders = toSignal(this.realtime.withLiveStatus(toObservable(this.list.items)), {
+    initialValue: [],
+  });
+  protected readonly statusById = computed(
+    () => new Map(this.liveOrders().map((order) => [order.id, order.status])),
   );
 
-  protected readonly statusById = computed(() => {
-    const live = this.liveStatuses();
-    return new Map(this.list.items().map((o) => [o.id, live.get(String(o.id)) ?? o.status]));
-  });
+  private readonly today = toIsoDate();
+  private readonly yesterday = toIsoDate(shiftDays(-1));
+
+  protected readonly datePresets: SegmentOption[] = [
+    { value: '', label: 'كل التواريخ' },
+    { value: this.today, label: 'اليوم' },
+    { value: this.yesterday, label: 'أمس' },
+  ];
+  protected readonly filterLabels = { clientName: 'العميل', orderDate: 'التاريخ' };
+  protected readonly filterFormatters = { orderDate: (date: string) => this.formatDateFilter(date) };
 
   protected readonly columns: TableColumn<Order>[] = [
-    { key: 'orderCode', header: 'رقم الفاتورة', nowrap: true },
-    { key: 'amount', header: 'قيمة الطلب', nowrap: true },
-    { key: 'clientName', header: 'العميل' },
-    { key: 'deliverymanName', header: 'المندوب' },
-    { key: 'status', header: 'الحالة' },
-    { key: 'distance', header: 'المسافة', nowrap: true },
-    { key: 'orderDate', header: 'تاريخ الطلب', nowrap: true },
-    { key: 'startedAt', header: 'استلام الطلب', nowrap: true },
-    { key: 'endedAt', header: 'نهاية الطلب', nowrap: true },
-    { key: 'address', header: 'العنوان' },
-    { key: 'location', header: 'الموقع' },
+    { key: 'invoice', header: 'الفاتورة', nowrap: true },
+    { key: 'client', header: 'العميل', minWidth: '11rem' },
+    { key: 'deliveryman', header: 'المندوب', minWidth: '11rem' },
+    { key: 'amount', header: 'القيمة', nowrap: true, align: 'end' },
+    { key: 'status', header: 'الحالة', nowrap: true },
+    { key: 'trip', header: 'الرحلة', nowrap: true },
+    { key: 'address', header: 'العنوان', minWidth: '12rem' },
     { key: 'notes', header: 'ملاحظات' },
   ];
 
@@ -90,7 +91,7 @@ export class OrdersPageComponent implements OnInit {
     this.list.load();
   }
 
-  protected onDateChange(date: string): void {
+  protected setDate(date: string): void {
     this.list.updateFilters({ orderDate: date });
   }
 
@@ -108,5 +109,16 @@ export class OrdersPageComponent implements OnInit {
     if (deleted) {
       this.list.refreshAfterRemoval();
     }
+  }
+
+  private formatDateFilter(date: string): string {
+    if (date === this.today) {
+      return 'اليوم';
+    }
+    if (date === this.yesterday) {
+      return 'أمس';
+    }
+    const parsed = new Date(`${date}T00:00:00`);
+    return Number.isNaN(parsed.getTime()) ? date : DISPLAY_DATE.format(parsed);
   }
 }

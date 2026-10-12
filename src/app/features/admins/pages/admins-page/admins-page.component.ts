@@ -6,10 +6,15 @@ import { DataTableComponent } from '../../../../shared/ui/data-table/data-table.
 import { TableCellDirective } from '../../../../shared/ui/data-table/table-cell.directive';
 import { TableColumn } from '../../../../shared/ui/data-table/table-column.model';
 import { PageHeaderComponent } from '../../../../shared/ui/page-header/page-header.component';
-import { PaginationComponent } from '../../../../shared/ui/pagination/pagination.component';
+import { EntityCellComponent } from '../../../../shared/ui/entity-cell/entity-cell.component';
+import { ListViewComponent } from '../../../../shared/ui/list-view/list-view.component';
 import { SearchInputComponent } from '../../../../shared/ui/search-input/search-input.component';
+import {
+  SegmentedControlComponent,
+  SegmentOption,
+} from '../../../../shared/ui/segmented-control/segmented-control.component';
 import { AdminFormModalComponent } from '../../components/admin-form-modal/admin-form-modal.component';
-import { Admin, AdminFilters, adminRoleLabel } from '../../data-access/admin.models';
+import { Admin, AdminFilters, ADMIN_ROLES, adminRoleLabel } from '../../data-access/admin.models';
 import { AdminsApi } from '../../data-access/admins.api';
 
 @Component({
@@ -20,7 +25,9 @@ import { AdminsApi } from '../../data-access/admins.api';
     SearchInputComponent,
     DataTableComponent,
     TableCellDirective,
-    PaginationComponent,
+    ListViewComponent,
+    EntityCellComponent,
+    SegmentedControlComponent,
     AdminFormModalComponent,
   ],
   templateUrl: './admins-page.component.html',
@@ -32,19 +39,24 @@ export class AdminsPageComponent implements OnInit {
 
   protected readonly list = createPaginatedList<Admin, AdminFilters>({
     loader: (query) => this.api.getPage(query),
-    initialFilters: { search: '' },
+    initialFilters: { search: '', role: '' },
     errorMessage: 'تعذر تحميل المستخدمين',
     syncWithUrl: true,
   });
   protected readonly formModal = new EntityModalState<Admin>();
 
   protected readonly columns: TableColumn<Admin>[] = [
-    { key: 'userName', header: 'اسم المستخدم' },
-    { key: 'email', header: 'البريد الإلكتروني' },
-    { key: 'role', header: 'الدور' },
+    { key: 'user', header: 'المستخدم', minWidth: '16rem' },
+    { key: 'role', header: 'الدور', nowrap: true },
   ];
 
   protected readonly roleLabel = adminRoleLabel;
+  protected readonly roleOptions: SegmentOption[] = [
+    { value: '', label: 'كل الأدوار' },
+    ...ADMIN_ROLES.map((role) => ({ value: role.value, label: role.shortLabel })),
+  ];
+  protected readonly filterLabels = { search: 'بحث', role: 'الدور' };
+  protected readonly filterFormatters = { role: adminRoleLabel };
 
   ngOnInit(): void {
     this.list.load();

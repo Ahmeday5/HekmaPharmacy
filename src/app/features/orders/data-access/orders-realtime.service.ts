@@ -11,8 +11,8 @@ import {
   setDoc,
   where,
 } from '@angular/fire/firestore';
-import { combineLatest, map, Observable, of } from 'rxjs';
-import { InDeliveryOrder } from './order.models';
+import { catchError, combineLatest, map, Observable, of, startWith, switchMap } from 'rxjs';
+import { InDeliveryOrder, Order } from './order.models';
 
 const COLLECTION = 'orders';
 /** أقصى عدد قيم في استعلام 'in' في Firestore */
@@ -75,6 +75,25 @@ export class OrdersRealtimeService {
           address: d.address ?? '',
           amount: d.amount ?? null,
         })),
+      ),
+    );
+  }
+
+  /**
+   * يدمج الحالة اللحظية من Firestore مع طلبات جاية من الـ API (الداتا بيز الرئيسية).
+   * كل البيانات من الـ API ما عدا الحالة. لو Firestore وقع بنكمل بحالة الـ API.
+   * switchMap بيلغي الاستماع القديم مع كل ليستة جديدة (صفحة/بحث).
+   */
+  withLiveStatus(orders$: Observable<Order[]>): Observable<Order[]> {
+    return orders$.pipe(
+      switchMap((orders) =>
+        this.watchStatuses(orders.map((order) => order.id)).pipe(
+          catchError(() => of(new Map<string, string>())),
+          startWith(new Map<string, string>()),
+          map((live) =>
+            orders.map((order) => ({ ...order, status: live.get(String(order.id)) ?? order.status })),
+          ),
+        ),
       ),
     );
   }
