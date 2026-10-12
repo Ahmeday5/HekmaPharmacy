@@ -1,0 +1,31 @@
+<section class="page">
+  <app-page-header title="إدارة المستخدمين" subtitle="حسابات وصلاحيات مستخدمي لوحة التحكم" icon="fa-user-shield">
+    <button type="button" class="btn btn-brand-primary" (click)="formModal.openCreate()">
+      <i class="fa-solid fa-plus"></i> إضافة مستخدم
+    </button>
+  </app-page-header>
+
+  <div class="filters-bar">
+    <app-search-input placeholder="ابحث بالاسم أو البريد الإلكتروني..." [value]="list.filters().search"
+      (search)="list.updateFilters({ search: $event })" />
+  </div>
+
+  <app-data-table [columns]="columns" [rows]="list.items()" [loading]="list.loading()"
+    [skeletonRowCount]="list.pageSize()"
+    [errorMessage]="list.error()" [rowOffset]="list.rowOffset()" [editable]="true" [deletable]="true"
+    [emptyMessage]="list.hasFilters() ? 'لا يوجد مستخدمين يطابقون البحث' : 'لا يوجد مستخدمين بعد'"
+    (edit)="formModal.openEdit($event)" (remove)="remove($event)">
+    <ng-template appTableCell="role" let-admin>
+      <span class="badge-status" [class.badge-success]="admin.role === 'Admin'"
+        [class.badge-info]="admin.role === 'Editor'" [class.badge-neutral]="!admin.role">{{ roleLabel(admin.role) }}</span>
+    </ng-template>
+  </app-data-table>
+
+  <app-pagination [page]="list.page()" [totalPages]="list.totalPages()" [totalItems]="list.totalItems()"
+    [pageSize]="list.pageSize()" [disabled]="list.loading()" (pageChange)="list.setPage($event)"
+    (pageSizeChange)="list.setPageSize($event)" />
+</section>
+
+@if (formModal.isOpen()) {
+<app-admin-form-modal [entity]="formModal.entity()" (closed)="formModal.close()" (saved)="onSaved()" />
+}

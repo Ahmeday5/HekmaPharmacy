@@ -1,43 +1,19 @@
-import { Component } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
-import { AuthService } from './services/auth.service';
-import { Observable } from 'rxjs';
-import { CommonModule } from '@angular/common';
-import { take } from 'rxjs/operators';
-import { HeaderComponent } from './components/layout/header/header.component';
-import { NgwWowService } from 'ngx-wow';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { LoadingBarComponent } from './core/loading/loading-bar.component';
+import { ConfirmDialogComponent } from './shared/ui/confirm-dialog/confirm-dialog.component';
+import { ToastContainerComponent } from './shared/ui/toast/toast-container.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, HeaderComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
+  imports: [RouterOutlet, LoadingBarComponent, ToastContainerComponent, ConfirmDialogComponent],
+  template: `
+    <app-loading-bar />
+    <router-outlet />
+    <app-confirm-dialog />
+    <app-toast-container />
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent {
-  title = 'HekmaPharmacy';
-  isLoggedIn$: Observable<boolean>;
-
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private wowService: NgwWowService
-  ) {
-    this.isLoggedIn$ = this.authService.isLoggedIn$;
-    this.wowService.init();
-    setTimeout(() => this.checkAuth(), 0);
-  }
-
-  checkAuth(): void {
-    this.isLoggedIn$.pipe(take(1)).subscribe((isLoggedIn) => {
-      console.log('Checking auth, isLoggedIn:', isLoggedIn);
-      if (!isLoggedIn) {
-        const currentUrl = this.router.url;
-        if (currentUrl !== '/' && currentUrl !== '/login') {
-          console.warn('User not logged in, redirecting to login');
-          this.router.navigate(['/']);
-        }
-      }
-    });
-  }
-}
+export class AppComponent {}

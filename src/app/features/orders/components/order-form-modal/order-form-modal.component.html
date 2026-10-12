@@ -1,0 +1,59 @@
+<app-modal size="lg" icon="fa-box" [title]="isEdit() ? 'تعديل الطلب' : 'إنشاء طلب توصيل جديد'"
+  [subtitle]="isEdit() ? 'رقم الفاتورة: ' + entity()?.orderCode : 'سيتم إرسال الطلب للمندوب فور الحفظ'"
+  [locked]="saving()" (closed)="close()">
+  <form [id]="formId" class="form-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <app-form-field label="رقم الفاتورة" fieldId="order-code" [control]="form.controls.orderCode">
+      <input id="order-code" class="form-control" formControlName="orderCode" placeholder="ادخل رقم الفاتورة"
+        autocomplete="off">
+    </app-form-field>
+
+    <app-form-field label="قيمة الطلب (جنيه)" fieldId="order-amount" [control]="form.controls.amount">
+      <input id="order-amount" type="number" inputmode="decimal" min="0" step="0.01" class="form-control"
+        formControlName="amount" placeholder="150">
+    </app-form-field>
+
+    <app-form-field label="العميل" fieldId="order-client" [control]="form.controls.clientId"
+      [messages]="{ required: 'يرجى اختيار العميل' }">
+      <select id="order-client" class="form-select" formControlName="clientId">
+        <option [ngValue]="null" disabled>{{ loadingClients() ? 'جاري تحميل العملاء...' : 'اختر العميل' }}</option>
+        @for (client of clients(); track client.id) {
+        <option [ngValue]="client.id">{{ client.name }}{{ client.clientCode ? ' — ' + client.clientCode : '' }}</option>
+        }
+      </select>
+    </app-form-field>
+
+    <app-form-field label="إرسال إلى المندوب" fieldId="order-deliveryman" [control]="form.controls.deliveryManId"
+      [messages]="{ required: 'يرجى اختيار المندوب' }"
+      [hint]="!isEdit() && !loadingDeliverymen() && deliverymen().length === 0 ? 'لا يوجد مندوبين متاحين حاليًا' : ''">
+      <select id="order-deliveryman" class="form-select" formControlName="deliveryManId">
+        <option [ngValue]="null" disabled>{{ loadingDeliverymen() ? 'جاري تحميل المندوبين...' : 'اختر المندوب' }}
+        </option>
+        @for (deliveryman of deliverymen(); track deliveryman.id) {
+        <option [ngValue]="deliveryman.id">{{ deliveryman.name }}</option>
+        }
+      </select>
+    </app-form-field>
+
+    <app-form-field class="span-full" label="العنوان" fieldId="order-address" [control]="form.controls.address">
+      <input id="order-address" class="form-control" formControlName="address" placeholder="عنوان التوصيل">
+    </app-form-field>
+
+    @if (isEdit()) {
+    <app-form-field class="span-full" label="الموقع الجغرافي" fieldId="order-location"
+      [control]="form.controls.orderLocation">
+      <input id="order-location" dir="ltr" class="form-control" formControlName="orderLocation"
+        placeholder="https://maps.google.com/...">
+    </app-form-field>
+    }
+
+    <app-form-field class="span-full" label="ملاحظات" fieldId="order-notes" [control]="form.controls.notes">
+      <textarea id="order-notes" rows="3" class="form-control" formControlName="notes"
+        placeholder="أي ملاحظات للمندوب"></textarea>
+    </app-form-field>
+  </form>
+
+  <ng-container modalFooter>
+    <app-form-actions [formId]="formId" [saving]="saving()" [submitLabel]="isEdit() ? 'حفظ التعديلات' : 'إرسال الطلب'"
+      (cancel)="close()" />
+  </ng-container>
+</app-modal>

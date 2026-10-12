@@ -1,0 +1,41 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.order-item {
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  border-inline-start: 4px solid var(--color-info);
+  background: var(--color-surface-muted);
+
+  p {
+    margin: 0.375rem 0 0;
+    font-size: 0.9rem;
+  }
+}
+
+.order-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+
+  strong {
+    color: var(--color-primary);
+  }
+}
+
+.order-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--color-text-muted);
+}
+
+.order-amount {
+  margin-inline-start: auto;
+  font-weight: 700;
+  color: var(--color-text);
+}

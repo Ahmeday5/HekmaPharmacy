@@ -1,0 +1,18 @@
+.avatar-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 50%;
+}
+
+.image-preview {
+  display: grid;
+  place-items: center;
+
+  img {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: var(--radius-md);
+    object-fit: contain;
+  }
+}

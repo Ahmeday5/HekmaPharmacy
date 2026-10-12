@@ -1,0 +1,119 @@
+.toast-stack {
+  position: fixed;
+  top: 1.25rem;
+  left: 1.25rem;
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  width: min(23.75rem, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.toast-card {
+  --accent: var(--color-primary);
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem 1.125rem;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  border-inline-start: 5px solid var(--accent);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  pointer-events: auto;
+  animation: toast-in 0.28s cubic-bezier(0.21, 1.02, 0.73, 1) both;
+
+  &:hover .toast-progress {
+    animation-play-state: paused;
+  }
+}
+
+.toast-success { --accent: var(--color-success); }
+.toast-error { --accent: var(--color-danger); }
+.toast-warning { --accent: var(--color-warning); }
+.toast-info { --accent: var(--color-info); }
+
+.toast-icon {
+  color: var(--accent);
+  font-size: 1.4rem;
+  margin-top: 2px;
+}
+
+.toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.toast-message {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+.toast-close {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  padding: 2px 0.25rem;
+  border-radius: var(--radius-sm);
+  line-height: 1;
+
+  &:hover {
+    color: var(--color-text);
+    background: var(--color-surface-muted);
+  }
+}
+
+.toast-progress {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 0.1875rem;
+  background: var(--accent);
+  opacity: 0.6;
+  transform-origin: right;
+  animation-name: toast-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.75rem) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes toast-progress {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+@media (max-width: 575.98px) {
+  .toast-stack {
+    top: 0.75rem;
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-card {
+    animation: none;
+  }
+}

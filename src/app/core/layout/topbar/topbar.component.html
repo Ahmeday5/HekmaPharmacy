@@ -1,0 +1,24 @@
+<header class="topbar">
+  <button type="button" class="topbar-toggle" (click)="layout.toggleSidebar()" aria-controls="app-sidebar"
+    [attr.aria-expanded]="layout.isCompact() ? layout.mobileOpen() : !layout.collapsed()"
+    [attr.aria-label]="layout.isCompact() ? 'فتح القائمة' : (layout.collapsed() ? 'توسيع القائمة' : 'تصغير القائمة')">
+    <i class="fa-solid fa-bars-staggered" aria-hidden="true"></i>
+  </button>
+
+  <nav class="breadcrumb-trail" aria-label="مسار الصفحة">
+    <span class="breadcrumb-root"><i class="fa-solid fa-house" aria-hidden="true"></i> لوحة التحكم</span>
+    <i class="fa-solid fa-angle-left separator" aria-hidden="true"></i>
+    <span class="breadcrumb-current" aria-current="page">{{ pageTitle() }}</span>
+  </nav>
+
+  <div class="topbar-actions">
+    <span class="status-chip" [class.offline]="!online()" role="status">
+      <span class="status-dot" aria-hidden="true"></span>
+      {{ online() ? 'متصل' : 'غير متصل' }}
+    </span>
+    <span class="topbar-date">
+      <i class="fa-regular fa-calendar" aria-hidden="true"></i> {{ today }}
+    </span>
+    <app-user-menu />
+  </div>
+</header>

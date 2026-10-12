@@ -1,41 +1,7 @@
-:root {
-  --main-color: #007B56;
-  --second-color: #C31843;
-  --third-color: #FFD166;
-  --bg-main: #FFFFFF;
-  --font-arabic: "Noto Sans Arabic";
-  --font-latin: "Noto Sans Arabic", sans-serif;
-}
-
-body {
-  margin: 0 !important;
-  font-family: var(--font-latin) !important;
-  direction: rtl;
-}
-
-.form-control:focus {
-  outline: none;
-  box-shadow: 0 0 5px rgba(27, 116, 187, 0.5);
-}
-
-.row {
-  margin: 0;
-}
-
-.container-fluid {
-  padding-right: 15px !important;
-  padding-left: 25px !important;
-}
-
-/*************alert*******************/
-svg {
-  width: 30px;
-  height: 25px;
-  margin-left: 20px;
-}
-
-@media (max-width: 576px) {
-  .btn-add {
-    width: 100% !important;
-  }
-}
+// نقطة الدخول الوحيدة للـ global styles — كل كومبوننت بيحتوي على الـ styles الخاصة بيه بس
+@use 'styles/tokens';
+@use 'styles/base';
+@use 'styles/forms';
+@use 'styles/buttons';
+@use 'styles/badges';
+@use 'styles/layout';

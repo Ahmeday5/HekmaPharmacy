@@ -1,0 +1,29 @@
+<app-modal icon="fa-user-shield" [title]="isEdit() ? 'تعديل بيانات المستخدم' : 'إضافة مستخدم جديد'"
+  [subtitle]="entity()?.userName" [locked]="saving()" (closed)="close()">
+  <form [id]="formId" class="form-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <app-form-field class="span-full" label="البريد الإلكتروني" fieldId="admin-email" [control]="form.controls.email">
+      <input id="admin-email" type="email" dir="ltr" class="form-control" formControlName="email"
+        placeholder="user@example.com" autocomplete="off">
+    </app-form-field>
+
+    <app-form-field class="span-full" [label]="isEdit() ? 'كلمة مرور جديدة' : 'كلمة المرور'" fieldId="admin-password"
+      [control]="form.controls.password"
+      [hint]="isEdit() ? 'اتركها فارغة للاحتفاظ بكلمة المرور الحالية' : '8 أحرف على الأقل: حرف كبير وصغير ورقم ورمز خاص'">
+      <app-password-input inputId="admin-password" formControlName="password" />
+    </app-form-field>
+
+    <app-form-field class="span-full" label="الدور" fieldId="admin-role" [control]="form.controls.role">
+      <select id="admin-role" class="form-select" formControlName="role">
+        <option value="" disabled>اختر الدور</option>
+        @for (role of roles; track role.value) {
+        <option [value]="role.value">{{ role.label }}</option>
+        }
+      </select>
+    </app-form-field>
+  </form>
+
+  <ng-container modalFooter>
+    <app-form-actions [formId]="formId" [saving]="saving()"
+      [submitLabel]="isEdit() ? 'حفظ التعديلات' : 'إضافة المستخدم'" (cancel)="close()" />
+  </ng-container>
+</app-modal>

@@ -1,0 +1,78 @@
+<section class="page">
+  <app-page-header title="التقارير وسجل الرحلات" subtitle="حالة الطلبات تتحدث لحظيًا" icon="fa-chart-line" />
+
+  <div class="filters-bar">
+    <app-search-input placeholder="ابحث باسم العميل..." [value]="list.filters().clientName"
+      (search)="list.updateFilters({ clientName: $event })" />
+
+    <div class="input-adorned">
+      <i class="input-adorned-icon fa-regular fa-calendar" aria-hidden="true"></i>
+      <input #dateInput type="date" class="form-control" aria-label="تاريخ الطلب" [value]="list.filters().orderDate"
+        (change)="onDateChange(dateInput.value)">
+      @if (list.filters().orderDate) {
+      <button type="button" class="input-adorned-clear" (click)="onDateChange('')" aria-label="مسح التاريخ">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      }
+    </div>
+
+    @if (list.hasFilters()) {
+    <button type="button" class="btn btn-brand-light" (click)="list.resetFilters()">
+      <i class="fa-solid fa-filter-circle-xmark"></i> مسح الفلاتر
+    </button>
+    }
+  </div>
+
+  <app-data-table [columns]="columns" [rows]="list.items()" [loading]="list.loading()"
+    [skeletonRowCount]="list.pageSize()"
+    [errorMessage]="list.error()" [rowOffset]="list.rowOffset()" [editable]="true" [deletable]="true"
+    [emptyMessage]="list.hasFilters() ? 'لا توجد طلبات تطابق الفلاتر المحددة' : 'لا توجد طلبات بعد'"
+    (edit)="formModal.openEdit($event)" (remove)="remove($event)">
+    <ng-template appTableCell="amount" let-order>{{ order.amount | number: '1.0-2' }} ج.م</ng-template>
+
+    <ng-template appTableCell="status" let-order>
+      <app-order-status-badge [status]="statusById().get(order.id)" />
+    </ng-template>
+
+    <ng-template appTableCell="distance" let-order>
+      {{ order.distance !== null ? (order.distance | number: '1.0-2') + ' كم' : '—' }}
+    </ng-template>
+
+    <ng-template appTableCell="orderDate" let-order>
+      <div class="datetime">
+        <span>{{ order.orderDate | date: 'yyyy-MM-dd' }}</span>
+        <small>{{ order.orderDate | date: 'HH:mm' }}</small>
+      </div>
+    </ng-template>
+
+    <ng-template appTableCell="startedAt" let-order>
+      @if (order.startedAt) { {{ order.startedAt | date: 'HH:mm' }} } @else {
+      <span class="text-muted-soft">لم يُستلم بعد</span>
+      }
+    </ng-template>
+
+    <ng-template appTableCell="endedAt" let-order>
+      @if (order.endedAt) { {{ order.endedAt | date: 'HH:mm' }} } @else {
+      <span class="text-muted-soft">لم يُسلَّم بعد</span>
+      }
+    </ng-template>
+
+    <ng-template appTableCell="location" let-order>
+      @if (order.location) {
+      <a class="btn btn-brand-outline btn-sm" [href]="order.location" target="_blank" rel="noopener noreferrer">
+        <i class="fa-solid fa-location-dot"></i> عرض
+      </a>
+      } @else {
+      <span class="text-muted-soft">لا يوجد</span>
+      }
+    </ng-template>
+  </app-data-table>
+
+  <app-pagination [page]="list.page()" [totalPages]="list.totalPages()" [totalItems]="list.totalItems()"
+    [pageSize]="list.pageSize()" [disabled]="list.loading()" (pageChange)="list.setPage($event)"
+    (pageSizeChange)="list.setPageSize($event)" />
+</section>
+
+@if (formModal.isOpen()) {
+<app-order-form-modal [entity]="formModal.entity()" (closed)="formModal.close()" (saved)="onSaved()" />
+}

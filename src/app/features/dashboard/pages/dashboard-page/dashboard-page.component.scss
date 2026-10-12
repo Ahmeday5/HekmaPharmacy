@@ -1,0 +1,65 @@
+// الداشبورد بيملأ الشاشة بالظبط: الخريطة بتاخد كل المساحة الباقية بعد الهيدر والإحصائيات
+.dashboard {
+  height: calc(100dvh - var(--topbar-height));
+  min-height: 40rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.dashboard-main {
+  display: grid;
+  // RTL: لوحة النشاط على اليمين والخريطة بتاخد الباقي
+  grid-template-columns: minmax(18rem, 24rem) minmax(0, 1fr);
+  gap: 1rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.dashboard-activity,
+.dashboard-map {
+  min-height: 0;
+}
+
+/* ---------- لابتوب صغير: الإحصائيات صفين ---------- */
+@media (max-width: 1199.98px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- تابلت وموبايل: كل حاجة تحت بعض والخريطة الأول ---------- */
+@media (max-width: 991.98px) {
+  .dashboard {
+    height: auto;
+    min-height: 0;
+  }
+
+  .dashboard-main {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dashboard-map {
+    order: -1;
+    height: 60dvh;
+    min-height: 22rem;
+  }
+
+  .dashboard-activity {
+    height: 32rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .stats-grid {
+    gap: 0.625rem;
+  }
+
+  .dashboard-map {
+    height: 55dvh;
+  }
+}

@@ -1,0 +1,38 @@
+:host {
+  display: block;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-primary);
+}
+
+.field-required {
+  color: var(--color-danger);
+  margin-inline-start: 2px;
+}
+
+.field-optional {
+  font-weight: 500;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-inline-start: 0.25rem;
+}
+
+.field-error,
+.field-hint {
+  margin: 0.375rem 0 0;
+  font-size: 0.825rem;
+}
+
+.field-error {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.field-hint {
+  color: var(--color-text-muted);
+}

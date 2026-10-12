@@ -1,0 +1,47 @@
+// مقياس الواجهة كلها: كل المقاسات بالـ rem فبتتظبط من هنا بس.
+// بالنسبة المئوية عشان نحترم إعداد حجم الخط في متصفح المستخدم.
+html {
+  direction: rtl;
+  font-size: 87.5%; // 14px — كثافة مريحة لشاشات اللابتوب والديسكتوب
+
+  @media (min-width: 1600px) {
+    font-size: 93.75%; // 15px للشاشات الكبيرة
+  }
+
+  @media (max-width: 575.98px) {
+    font-size: 93.75%; // 15px على الموبايل عشان القراءة واللمس
+  }
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-family);
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+a {
+  color: var(--color-primary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+// يقفل الـ scroll وقت فتح أي مودال أو السايدبار على الموبايل
+body.modal-scroll-lock,
+body.drawer-scroll-lock {
+  overflow: hidden;
+}

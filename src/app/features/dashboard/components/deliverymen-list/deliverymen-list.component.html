@@ -1,0 +1,36 @@
+<div class="list-toolbar">
+  <app-search-input placeholder="ابحث عن مندوب..." [debounceMs]="150" (search)="search.set($event)" />
+</div>
+
+@if (deliverymen() === null) {
+<ul class="panel-list" aria-busy="true" aria-label="جاري تحميل المندوبين">
+  @for (item of placeholders; track item) {
+  <li class="deliveryman-item">
+    <app-skeleton variant="circle" width="2.5rem" height="2.5rem" />
+    <div class="deliveryman-info">
+      <app-skeleton width="60%" />
+      <app-skeleton width="35%" height="1.1rem" />
+    </div>
+    <app-skeleton variant="rect" width="2.25rem" height="2.25rem" />
+  </li>
+  }
+</ul>
+} @else {
+<ul class="panel-list">
+  @for (deliveryman of visible(); track deliveryman.id) {
+  <li class="deliveryman-item" [class.offline]="!deliveryman.isAvailable">
+    <app-avatar [imageUrl]="deliveryman.imageUrl | apiAsset" [name]="deliveryman.name" [size]="40" />
+    <div class="deliveryman-info">
+      <strong>{{ deliveryman.name }}</strong>
+      <app-availability-badge [available]="deliveryman.isAvailable" />
+    </div>
+    <app-notify-button [deliveryman]="deliveryman" />
+  </li>
+  } @empty {
+  <li class="panel-state">
+    <i class="fa-regular fa-user"></i>
+    {{ search() ? 'لا يوجد مندوب بهذا الاسم' : 'لا يوجد مندوبين مسجلين' }}
+  </li>
+  }
+</ul>
+}

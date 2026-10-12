@@ -1,0 +1,118 @@
+<div class="login-page">
+  <div class="login-shell">
+    <!-- Left Column: Login Form -->
+    <div class="login-form-side">
+      <div class="login-form-wrapper">
+        <div class="brand fade-in-up">
+          <img src="/assets/img/logo.jpg" class="brand-logo" alt="logo">
+          <h1>لوحة تحكم الكاشير</h1>
+          <p class="brand-subtitle">إدارة طلبات التوصيل</p>
+        </div>
+
+        @if (errorMessage(); as message) {
+        <div class="alert-box fade-in-up" role="alert">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>{{ message }}</span>
+        </div>
+        }
+
+        <form class="login-form fade-in-up" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="email">البريد الإلكتروني</label>
+            <div class="input-wrapper">
+              <i class="fa-regular fa-envelope input-icon"></i>
+              <input id="email" type="email" dir="ltr" class="form-control" formControlName="email"
+                placeholder="example@email.com" autocomplete="username" />
+            </div>
+            @if (fieldError('email'); as error) {
+            <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">كلمة المرور</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-lock input-icon"></i>
+              <input id="password" class="form-control" formControlName="password"
+                [type]="showPassword() ? 'text' : 'password'" placeholder="••••••••" autocomplete="current-password" />
+              <button type="button" class="password-toggle" (click)="showPassword.set(!showPassword())"
+                [attr.aria-label]="showPassword() ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'">
+                <i class="fa-regular" [class.fa-eye]="!showPassword()" [class.fa-eye-slash]="showPassword()"></i>
+              </button>
+            </div>
+            @if (fieldError('password'); as error) {
+            <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-options">
+            <div class="remember form-check">
+              <input class="form-check-input" type="checkbox" id="rememberMe" formControlName="rememberMe">
+              <label class="form-check-label" for="rememberMe">تذكرني</label>
+            </div>
+          </div>
+
+          <button type="submit" appLoadingButton class="submit-btn" [loading]="loading()">
+            <span>متابعة</span>
+            <i class="fa-solid fa-arrow-left-long"></i>
+          </button>
+        </form>
+
+        <p class="footer-note">جميع الحقوق محفوظة &copy; Hekma Pharmacy</p>
+      </div>
+    </div>
+
+    <!-- Right Column: Information Panel -->
+    <div class="login-info-side">
+      <div class="info-overlay"></div>
+      <div class="info-content">
+        <div class="info-badge fade-in-up">
+          <i class="fa-solid fa-pills"></i>
+          <span>نظام إدارة الصيدلية</span>
+        </div>
+
+        <h2 class="fade-in-up delay-1">مرحباً بك في لوحة تحكم Hekma Pharmacy</h2>
+        <p class="info-description fade-in-up delay-1">
+          منصة متكاملة لإدارة عمليات التوصيل والمبيعات، تتيح لفريقك متابعة الطلبات، العملاء، وموظفي
+          التوصيل بكل سهولة ودقة من مكان واحد.
+        </p>
+
+        <ul class="feature-list">
+          <li class="fade-in-up delay-2">
+            <span class="feature-icon"><i class="fa-solid fa-box-open"></i></span>
+            <div>
+              <h4>إدارة الطلبات</h4>
+              <p>تتبع وإدارة تقارير الطلبات ومتابعة حالتها لحظة بلحظة.</p>
+            </div>
+          </li>
+          <li class="fade-in-up delay-3">
+            <span class="feature-icon"><i class="fa-solid fa-users"></i></span>
+            <div>
+              <h4>إدارة العملاء</h4>
+              <p>سجل شامل للعملاء مع إمكانية التعديل والمتابعة المستمرة.</p>
+            </div>
+          </li>
+          <li class="fade-in-up delay-4">
+            <span class="feature-icon"><i class="fa-solid fa-motorcycle"></i></span>
+            <div>
+              <h4>إدارة مندوبي التوصيل</h4>
+              <p>تنظيم بيانات مندوبي التوصيل ومتابعة أدائهم بكل كفاءة.</p>
+            </div>
+          </li>
+          <li class="fade-in-up delay-5">
+            <span class="feature-icon"><i class="fa-solid fa-user-shield"></i></span>
+            <div>
+              <h4>إدارة المشرفين</h4>
+              <p>تحكم كامل في صلاحيات وحسابات المشرفين على النظام.</p>
+            </div>
+          </li>
+        </ul>
+
+        <div class="developer-credit fade-in-up delay-5">
+          <strong>TheOneSystem</strong>
+          <span>Developed by</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

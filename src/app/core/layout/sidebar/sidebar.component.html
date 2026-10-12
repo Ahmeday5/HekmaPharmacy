@@ -1,0 +1,55 @@
+@if (layout.isCompact() && layout.mobileOpen()) {
+<div class="sidebar-backdrop" (click)="layout.closeMobileSidebar()" aria-hidden="true"></div>
+}
+
+<aside id="app-sidebar" class="sidebar" [class.collapsed]="layout.collapsed()" [class.drawer]="layout.isCompact()"
+  [class.open]="layout.mobileOpen()" [attr.aria-hidden]="layout.isCompact() && !layout.mobileOpen() ? 'true' : null"
+  [attr.inert]="layout.isCompact() && !layout.mobileOpen() ? '' : null">
+  <div class="sidebar-brand">
+    <img src="/assets/img/logo.jpg" alt="" width="42" height="42">
+    <div class="brand-text">
+      <strong>Hekma Pharmacy</strong>
+      <small>لوحة تحكم التوصيل</small>
+    </div>
+    @if (layout.isCompact()) {
+    <button type="button" class="sidebar-close" (click)="layout.closeMobileSidebar()" aria-label="إغلاق القائمة">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    }
+  </div>
+
+  <nav class="sidebar-nav" aria-label="القائمة الرئيسية">
+    @for (section of sections; track section.title) {
+    <p class="nav-section-title">{{ section.title }}</p>
+    <ul class="nav-list">
+      @for (item of section.items; track item.path) {
+      <li>
+        <a class="nav-link-item" [routerLink]="item.path" routerLinkActive="active" ariaCurrentWhenActive="page"
+          [attr.data-tooltip]="layout.collapsed() ? item.label : null" (click)="layout.closeMobileSidebar()">
+          <i class="nav-icon fa-solid {{ item.icon }}" aria-hidden="true"></i>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      </li>
+      }
+    </ul>
+    }
+  </nav>
+
+  <div class="sidebar-footer">
+    @if (!layout.isCompact()) {
+    <button type="button" class="nav-link-item" (click)="layout.toggleSidebar()"
+      [attr.data-tooltip]="layout.collapsed() ? 'توسيع القائمة' : null"
+      [attr.aria-label]="layout.collapsed() ? 'توسيع القائمة' : 'تصغير القائمة'" aria-controls="app-sidebar"
+      [attr.aria-expanded]="!layout.collapsed()">
+      <i class="nav-icon fa-solid" [class.fa-angles-right]="!layout.collapsed()"
+        [class.fa-angles-left]="layout.collapsed()" aria-hidden="true"></i>
+      <span class="nav-label">تصغير القائمة</span>
+    </button>
+    }
+    <button type="button" class="nav-link-item logout" (click)="logoutService.confirmLogout()"
+      [attr.data-tooltip]="layout.collapsed() ? 'تسجيل الخروج' : null">
+      <i class="nav-icon fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+      <span class="nav-label">تسجيل الخروج</span>
+    </button>
+  </div>
+</aside>

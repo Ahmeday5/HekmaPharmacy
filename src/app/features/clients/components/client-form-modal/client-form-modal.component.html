@@ -1,0 +1,42 @@
+<app-modal size="lg" icon="fa-user-plus" [title]="isEdit() ? 'تعديل بيانات العميل' : 'إضافة عميل جديد'"
+  [locked]="saving()" (closed)="close()">
+  <form [id]="formId" class="form-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <app-form-field label="اسم العميل" fieldId="client-name" [control]="form.controls.name">
+      <input id="client-name" class="form-control" formControlName="name" placeholder="ادخل اسم العميل"
+        autocomplete="off">
+    </app-form-field>
+
+    <app-form-field label="كود العميل" fieldId="client-code" [control]="form.controls.clientCode">
+      <input id="client-code" class="form-control" formControlName="clientCode" placeholder="ادخل كود العميل">
+    </app-form-field>
+
+    <app-form-field label="رقم التليفون" fieldId="client-phone" [control]="form.controls.phoneNumber">
+      <input id="client-phone" type="tel" dir="ltr" class="form-control" formControlName="phoneNumber"
+        placeholder="01xxxxxxxxx">
+    </app-form-field>
+
+    <app-form-field label="رقم التليفون 2" fieldId="client-phone2" [control]="form.controls.phoneNumber02">
+      <input id="client-phone2" type="tel" dir="ltr" class="form-control" formControlName="phoneNumber02"
+        placeholder="01xxxxxxxxx">
+    </app-form-field>
+
+    <app-form-field label="العنوان" fieldId="client-address" [control]="form.controls.address">
+      <input id="client-address" class="form-control" formControlName="address" placeholder="ادخل العنوان">
+    </app-form-field>
+
+    <app-form-field label="العنوان 2" fieldId="client-address2" [control]="form.controls.address02">
+      <input id="client-address2" class="form-control" formControlName="address02" placeholder="عنوان إضافي">
+    </app-form-field>
+
+    <app-form-field class="span-full" label="الموقع الجغرافي" fieldId="client-location"
+      [control]="form.controls.location" hint="الصق رابط موقع العميل من Google Maps">
+      <input id="client-location" dir="ltr" class="form-control" formControlName="location"
+        placeholder="https://maps.google.com/...">
+    </app-form-field>
+  </form>
+
+  <ng-container modalFooter>
+    <app-form-actions [formId]="formId" [saving]="saving()" [submitLabel]="isEdit() ? 'حفظ التعديلات' : 'إضافة العميل'"
+      (cancel)="close()" />
+  </ng-container>
+</app-modal>

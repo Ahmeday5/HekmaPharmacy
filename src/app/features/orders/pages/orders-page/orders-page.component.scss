@@ -1,0 +1,9 @@
+.datetime {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+
+  small {
+    color: var(--color-text-muted);
+  }
+}

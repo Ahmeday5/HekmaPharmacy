@@ -1,0 +1,53 @@
+<section class="page">
+  <app-page-header title="إدارة المندوبين" subtitle="بيانات المندوبين وحالتهم وإرسال التنبيهات" icon="fa-motorcycle">
+    <button type="button" class="btn btn-brand-primary" (click)="formModal.openCreate()">
+      <i class="fa-solid fa-plus"></i> إضافة مندوب
+    </button>
+  </app-page-header>
+
+  <div class="filters-bar">
+    <app-search-input placeholder="ابحث باسم المندوب..." [value]="list.filters().name"
+      (search)="list.updateFilters({ name: $event })" />
+    <app-search-input placeholder="ابحث بالبريد الإلكتروني..." [value]="list.filters().email"
+      (search)="list.updateFilters({ email: $event })" />
+  </div>
+
+  <app-data-table [columns]="columns" [rows]="list.items()" [loading]="list.loading()"
+    [skeletonRowCount]="list.pageSize()"
+    [errorMessage]="list.error()" [rowOffset]="list.rowOffset()" [editable]="true" [deletable]="true"
+    [emptyMessage]="list.hasFilters() ? 'لا يوجد مندوبين يطابقون البحث' : 'لا يوجد مندوبين بعد'"
+    (edit)="formModal.openEdit($event)" (remove)="remove($event)">
+    <ng-template appTableCell="image" let-deliveryman>
+      <button type="button" class="avatar-button" (click)="imagePreview.set(deliveryman)"
+        [attr.aria-label]="'عرض صورة ' + deliveryman.name">
+        <app-avatar [imageUrl]="deliveryman.imageUrl | apiAsset" [name]="deliveryman.name" />
+      </button>
+    </ng-template>
+    <ng-template appTableCell="status" let-deliveryman>
+      <app-availability-badge [available]="deliveryman.isAvailable" />
+    </ng-template>
+    <ng-template appTableCell="notify" let-deliveryman>
+      <app-notify-button [deliveryman]="deliveryman" />
+    </ng-template>
+  </app-data-table>
+
+  <app-pagination [page]="list.page()" [totalPages]="list.totalPages()" [totalItems]="list.totalItems()"
+    [pageSize]="list.pageSize()" [disabled]="list.loading()" (pageChange)="list.setPage($event)"
+    (pageSizeChange)="list.setPageSize($event)" />
+</section>
+
+@if (formModal.isOpen()) {
+<app-deliveryman-form-modal [entity]="formModal.entity()" (closed)="formModal.close()" (saved)="onSaved()" />
+}
+
+@if (imagePreview(); as deliveryman) {
+<app-modal size="md" icon="fa-image" [title]="deliveryman.name" (closed)="imagePreview.set(null)">
+  <div class="image-preview">
+    @if (deliveryman.imageUrl | apiAsset; as imageUrl) {
+    <img [src]="imageUrl" [alt]="deliveryman.name">
+    } @else {
+    <p class="text-muted-soft">لا توجد صورة لهذا المندوب</p>
+    }
+  </div>
+</app-modal>
+}

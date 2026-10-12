@@ -1,0 +1,16 @@
+<label class="field-label" [attr.for]="fieldId()">
+  {{ label() }}
+  @if (isRequired) {
+  <span class="field-required" aria-hidden="true">*</span>
+  } @else if (control()) {
+  <span class="field-optional">(اختياري)</span>
+  }
+</label>
+
+<ng-content></ng-content>
+
+@if (errorMessage; as message) {
+<p class="field-error" role="alert"><i class="fa-solid fa-circle-exclamation"></i> {{ message }}</p>
+} @else if (hint()) {
+<p class="field-hint">{{ hint() }}</p>
+}

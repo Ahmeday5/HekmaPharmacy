@@ -1,0 +1,28 @@
+<button type="button" class="user-trigger" (click)="open.set(!open())" aria-haspopup="menu"
+  [attr.aria-expanded]="open()" aria-controls="user-menu-panel">
+  <app-avatar [name]="user()?.name ?? ''" [size]="38" />
+  <span class="user-trigger-text">
+    <strong>{{ user()?.name || 'المستخدم' }}</strong>
+    @if (user()?.role) {
+    <small>{{ user()?.role }}</small>
+    }
+  </span>
+  <i class="fa-solid fa-chevron-down chevron" [class.rotated]="open()" aria-hidden="true"></i>
+</button>
+
+@if (open()) {
+<div id="user-menu-panel" class="user-panel" role="menu">
+  <div class="user-panel-head">
+    <app-avatar [name]="user()?.name ?? ''" [size]="44" />
+    <div>
+      <strong>{{ user()?.name || 'المستخدم' }}</strong>
+      @if (user()?.email) {
+      <p dir="ltr">{{ user()?.email }}</p>
+      }
+    </div>
+  </div>
+  <button type="button" class="user-panel-item danger" role="menuitem" (click)="logout()">
+    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> تسجيل الخروج
+  </button>
+</div>
+}

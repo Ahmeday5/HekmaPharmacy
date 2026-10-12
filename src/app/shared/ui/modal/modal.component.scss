@@ -1,0 +1,143 @@
+.modal-backdrop-layer {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 5vh 1rem;
+  overflow-y: auto;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  animation: backdrop-in 0.2s ease both;
+}
+
+.modal-dialog-box {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  outline: none;
+  animation: dialog-in 0.25s cubic-bezier(0.21, 1.02, 0.73, 1) both;
+}
+
+.modal-sm { max-width: 27.5rem; }
+.modal-md { max-width: 35rem; }
+.modal-lg { max-width: 51.25rem; }
+.modal-xl { max-width: 71.25rem; }
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.125rem 1.375rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.modal-head-icon {
+  display: grid;
+  place-items: center;
+  width: 2.625rem;
+  height: 2.625rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 1.15rem;
+}
+
+.modal-head-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.modal-head-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.modal-head-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.modal-close {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  transition: background-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+  }
+}
+
+.modal-content-body {
+  padding: 1.375rem;
+  overflow-y: auto;
+}
+
+.modal-foot {
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.625rem;
+  padding: 0.875rem 1.375rem;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface-muted);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+
+  &:empty {
+    display: none;
+  }
+}
+
+@keyframes backdrop-in {
+  from { opacity: 0; }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(1rem) scale(0.98);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .modal-backdrop-layer {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-dialog-box {
+    max-width: 100%;
+    max-height: 92vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .modal-foot {
+    border-radius: 0;
+
+    ::ng-deep .btn {
+      flex: 1;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop-layer,
+  .modal-dialog-box {
+    animation: none;
+  }
+}

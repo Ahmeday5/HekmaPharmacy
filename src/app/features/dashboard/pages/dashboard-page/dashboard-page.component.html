@@ -1,0 +1,26 @@
+<section class="page dashboard">
+  <app-page-header title="لوحة التحكم" subtitle="متابعة لحظية للمندوبين والطلبات" icon="fa-gauge-high">
+    <button type="button" class="btn btn-brand-primary" (click)="orderModalOpen.set(true)">
+      <i class="fa-solid fa-plus"></i> إنشاء طلب جديد
+    </button>
+  </app-page-header>
+
+  <div class="stats-grid">
+    <app-stat-card label="طلبات اليوم" icon="fa-box" tone="primary" [value]="todayOrders()" hint="من الداتا بيز الرئيسية" />
+    <app-stat-card label="قيد التوصيل" icon="fa-truck-fast" tone="info" [value]="inDeliveryOrders()?.length ?? null"
+      hint="تتحدث لحظيًا" />
+    <app-stat-card label="مندوبين متاحين" icon="fa-motorcycle" tone="success" [value]="availableCount()"
+      [hint]="'من إجمالي ' + totalDeliverymen() + ' مندوب'" />
+    <app-stat-card label="خارج الخدمة" icon="fa-user-slash" tone="danger" [value]="offlineCount()"
+      hint="غير متاحين لاستلام طلبات" />
+  </div>
+
+  <div class="dashboard-main">
+    <app-activity-panel class="dashboard-activity" [deliverymen]="deliverymen()" [orders]="inDeliveryOrders()" />
+    <app-live-map class="dashboard-map" [deliverymen]="deliverymen()" />
+  </div>
+</section>
+
+@if (orderModalOpen()) {
+<app-order-form-modal (closed)="orderModalOpen.set(false)" (saved)="onOrderCreated()" />
+}

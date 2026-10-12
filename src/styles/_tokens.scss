@@ -1,0 +1,75 @@
+// Design tokens — المصدر الوحيد للألوان والمسافات والظلال في المشروع
+:root {
+  // Brand
+  --color-primary: #007b56;
+  --color-primary-hover: #006246;
+  --color-primary-soft: rgba(0, 123, 86, 0.1);
+  --color-on-primary: #ffffff;
+  --color-accent: #ffd166;
+  --color-secondary: #c31843;
+
+  // Semantic
+  --color-success: #16a34a;
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-danger-soft: rgba(220, 38, 38, 0.1);
+  --color-warning: #d97706;
+  --color-warning-hover: #b45309;
+  --color-info: #2563eb;
+
+  // Surfaces & text
+  --color-bg: #f4f7f6;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8faf9;
+  --color-border: #e3e8e6;
+  --color-border-strong: #c9d3cf;
+  --color-text: #1f2a26;
+  --color-text-muted: #6b7a74;
+  --color-skeleton: #eef1f0;
+  --color-skeleton-highlight: #dfe5e2;
+
+  // Sidebar
+  --color-sidebar-bg: #0b3d2e;
+  --color-sidebar-text: rgba(255, 255, 255, 0.72);
+  --color-sidebar-hover: rgba(255, 255, 255, 0.08);
+  --color-sidebar-active: rgba(255, 255, 255, 0.14);
+
+  // Shape
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-pill: 999px;
+
+  // Elevation
+  --shadow-sm: 0 1px 0.1875rem rgba(16, 24, 40, 0.08);
+  --shadow-md: 0 0.25rem 0.75rem rgba(16, 24, 40, 0.08);
+  --shadow-lg: 0 0.625rem 1.875rem rgba(16, 24, 40, 0.14);
+  --shadow-xl: 0 1.5rem 3rem rgba(16, 24, 40, 0.2);
+
+  // Layout
+  --sidebar-width: 15rem;
+  --sidebar-collapsed-width: 4.5rem;
+  --topbar-height: 4rem;
+  // المسافة بين المحتوى وحواف الشاشة — صغيرة ومتساوية في كل المقاسات
+  --page-gutter: clamp(0.75rem, 1.4vw, 1.5rem);
+  --layout-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // Layers
+  --z-header: 100;
+  --z-sidebar: 110;
+  --z-sidebar-backdrop: 105;
+  --z-modal: 1050;
+  --z-toast: 1100;
+  --z-loading-bar: 1200;
+
+  // Typography
+  --font-family: 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  // Legacy aliases (تستخدمها صفحة الدخول)
+  --main-color: var(--color-primary);
+  --second-color: var(--color-secondary);
+  --third-color: var(--color-accent);
+  --bg-main: var(--color-surface);
+  --font-latin: var(--font-family);
+  --font-arabic: var(--font-family);
+}

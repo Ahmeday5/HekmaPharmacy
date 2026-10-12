@@ -1,0 +1,62 @@
+@if (totalItems() > 0) {
+<div class="pager" [class.is-disabled]="disabled()">
+  <p class="pager-summary">
+    عرض <strong>{{ rangeStart() }}–{{ rangeEnd() }}</strong> من <strong>{{ totalItems() }}</strong>
+  </p>
+
+  @if (totalPages() > 1) {
+  <nav class="pager-nav" aria-label="التنقل بين الصفحات">
+    <button type="button" class="pager-btn" (click)="goTo(1)" [disabled]="isFirst() || disabled()"
+      aria-label="أول صفحة" title="أول صفحة">
+      <i class="fa-solid fa-angles-right"></i>
+    </button>
+    <button type="button" class="pager-btn" (click)="goTo(page() - 1)" [disabled]="isFirst() || disabled()"
+      aria-label="الصفحة السابقة" title="السابق">
+      <i class="fa-solid fa-angle-right"></i>
+    </button>
+
+    @for (item of items(); track item.type === 'page' ? item.page : item.key) {
+    @if (item.type === 'page') {
+    <button type="button" class="pager-btn pager-number" [class.active]="item.page === page()"
+      [attr.aria-current]="item.page === page() ? 'page' : null" [disabled]="disabled()" (click)="goTo(item.page)">
+      {{ item.page }}
+    </button>
+    } @else {
+    <span class="pager-ellipsis" aria-hidden="true">…</span>
+    }
+    }
+
+    <button type="button" class="pager-btn" (click)="goTo(page() + 1)" [disabled]="isLast() || disabled()"
+      aria-label="الصفحة التالية" title="التالي">
+      <i class="fa-solid fa-angle-left"></i>
+    </button>
+    <button type="button" class="pager-btn" (click)="goTo(totalPages())" [disabled]="isLast() || disabled()"
+      aria-label="آخر صفحة" title="آخر صفحة">
+      <i class="fa-solid fa-angles-left"></i>
+    </button>
+  </nav>
+  }
+
+  <div class="pager-tools">
+    @if (totalPages() > 1) {
+    <form class="pager-jump" (submit)="$event.preventDefault(); jumpTo(jumpInput)">
+      <label for="pager-jump-input">اذهب إلى</label>
+      <input #jumpInput id="pager-jump-input" type="number" inputmode="numeric" min="1" [max]="totalPages()"
+        [placeholder]="page()" [disabled]="disabled()">
+      <button type="submit" class="pager-btn" [disabled]="disabled()" aria-label="انتقال">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+    </form>
+    }
+
+    <label class="pager-size">
+      <span>عدد الصفوف</span>
+      <select [value]="pageSize()" (change)="changePageSize($any($event.target).value)" [disabled]="disabled()">
+        @for (size of pageSizeOptions(); track size) {
+        <option [value]="size" [selected]="size === pageSize()">{{ size }}</option>
+        }
+      </select>
+    </label>
+  </div>
+</div>
+}

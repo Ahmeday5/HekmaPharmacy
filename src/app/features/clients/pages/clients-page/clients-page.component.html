@@ -1,0 +1,36 @@
+<section class="page">
+  <app-page-header title="إدارة العملاء" subtitle="إضافة وتعديل بيانات العملاء ومواقعهم" icon="fa-users">
+    <button type="button" class="btn btn-brand-primary" (click)="formModal.openCreate()">
+      <i class="fa-solid fa-plus"></i> إضافة عميل
+    </button>
+  </app-page-header>
+
+  <div class="filters-bar">
+    <app-search-input placeholder="ابحث باسم العميل..." [value]="list.filters().name"
+      (search)="list.updateFilters({ name: $event })" />
+  </div>
+
+  <app-data-table [columns]="columns" [rows]="list.items()" [loading]="list.loading()"
+    [skeletonRowCount]="list.pageSize()"
+    [errorMessage]="list.error()" [rowOffset]="list.rowOffset()" [editable]="true" [deletable]="true"
+    [emptyMessage]="list.hasFilters() ? 'لا يوجد عملاء يطابقون البحث' : 'لا يوجد عملاء بعد'"
+    (edit)="formModal.openEdit($event)" (remove)="remove($event)">
+    <ng-template appTableCell="location" let-client>
+      @if (client.location) {
+      <a class="btn btn-brand-outline btn-sm" [href]="client.location" target="_blank" rel="noopener noreferrer">
+        <i class="fa-solid fa-location-dot"></i> عرض الموقع
+      </a>
+      } @else {
+      <span class="text-muted-soft">لا يوجد موقع</span>
+      }
+    </ng-template>
+  </app-data-table>
+
+  <app-pagination [page]="list.page()" [totalPages]="list.totalPages()" [totalItems]="list.totalItems()"
+    [pageSize]="list.pageSize()" [disabled]="list.loading()" (pageChange)="list.setPage($event)"
+    (pageSizeChange)="list.setPageSize($event)" />
+</section>
+
+@if (formModal.isOpen()) {
+<app-client-form-modal [entity]="formModal.entity()" (closed)="formModal.close()" (saved)="onSaved()" />
+}

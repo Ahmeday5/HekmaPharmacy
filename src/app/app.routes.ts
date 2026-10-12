@@ -1,82 +1,70 @@
-import { Router, Routes } from '@angular/router';
-import { canActivate } from './guards/auth.guard';
-import { inject } from '@angular/core';
-import { AuthService } from './services/auth.service';
-import { map } from 'rxjs';
-import { LoginComponent } from './components/login/login.component';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { ReportOrderComponent } from './components/orders/report-order/report-order.component';
-import { EditReportOrderComponent } from './components/orders/edit-report-order/edit-report-order.component';
-import { AllClientComponent } from './components/clients/all-client/all-client.component';
-import { EditClientComponent } from './components/clients/edit-client/edit-client.component';
-import { AllDeliverymanComponent } from './components/Deliverymen/all-deliveryman/all-deliveryman.component';
-import { EditDeliverymanComponent } from './components/Deliverymen/edit-deliveryman/edit-deliveryman.component';
-import { AllAdminComponent } from './components/admins/all-admin/all-admin.component';
-import { EditAdminComponent } from './components/admins/edit-admin/edit-admin.component';
+import { Routes } from '@angular/router';
+import { authGuard, guestGuard } from './core/auth/auth.guards';
+import { ShellComponent } from './core/layout/shell/shell.component';
 
 export const routes: Routes = [
   {
+    path: 'login',
+    canActivate: [guestGuard],
+    title: 'تسجيل الدخول',
+    loadComponent: () =>
+      import('./features/auth/pages/login-page/login-page.component').then((m) => m.LoginPageComponent),
+  },
+
+  // روابط النسخة القديمة — عشان أي bookmark قديم يفضل شغال
+  { path: 'reportOrder', redirectTo: 'orders', pathMatch: 'full' },
+  { path: 'editReportOrder/:id', redirectTo: 'orders' },
+  { path: 'Clients', redirectTo: 'clients', pathMatch: 'full' },
+  { path: 'editClient/:id', redirectTo: 'clients' },
+  { path: 'Deliverymen', redirectTo: 'deliverymen', pathMatch: 'full' },
+  { path: 'editDeliverymen/:id', redirectTo: 'deliverymen' },
+  { path: 'Admins', redirectTo: 'admins', pathMatch: 'full' },
+  { path: 'editAdmin/:id', redirectTo: 'admins' },
+
+  {
     path: '',
-    component: LoginComponent,
-    canActivate: [
-      () => {
-        const authService = inject(AuthService);
-        const router = inject(Router);
-        return authService.isLoggedIn$.pipe(
-          map((isLoggedIn) => {
-            if (isLoggedIn) {
-              return router.createUrlTree(['/dashboard']);
-            }
-            return true;
-          })
-        );
+    component: ShellComponent,
+    canActivate: [authGuard],
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      {
+        path: 'dashboard',
+        title: 'الرئيسية',
+        loadComponent: () =>
+          import('./features/dashboard/pages/dashboard-page/dashboard-page.component').then(
+            (m) => m.DashboardPageComponent,
+          ),
+      },
+      {
+        path: 'orders',
+        title: 'التقارير وسجل الرحلات',
+        loadComponent: () =>
+          import('./features/orders/pages/orders-page/orders-page.component').then((m) => m.OrdersPageComponent),
+      },
+      {
+        path: 'clients',
+        title: 'العملاء',
+        loadComponent: () =>
+          import('./features/clients/pages/clients-page/clients-page.component').then(
+            (m) => m.ClientsPageComponent,
+          ),
+      },
+      {
+        path: 'deliverymen',
+        title: 'المندوبين',
+        loadComponent: () =>
+          import('./features/deliverymen/pages/deliverymen-page/deliverymen-page.component').then(
+            (m) => m.DeliverymenPageComponent,
+          ),
+      },
+      {
+        path: 'admins',
+        title: 'المستخدمين',
+        loadComponent: () =>
+          import('./features/admins/pages/admins-page/admins-page.component').then((m) => m.AdminsPageComponent),
       },
     ],
   },
-  { path: 'login', redirectTo: '', pathMatch: 'full' },
-  {
-    path: 'dashboard',
-    component: DashboardComponent,
-    canActivate: [canActivate],
-  },
-  {
-    path: 'reportOrder',
-    component: ReportOrderComponent,
-    canActivate: [canActivate],
-  },
-  {
-    path: 'editReportOrder/:id',
-    component: EditReportOrderComponent,
-    canActivate: [canActivate],
-  },
-  {
-    path: 'Clients',
-    component: AllClientComponent,
-    canActivate: [canActivate],
-  },
-  {
-    path: 'editClient/:id',
-    component: EditClientComponent,
-    canActivate: [canActivate],
-  },
-  {
-    path: 'Deliverymen',
-    component: AllDeliverymanComponent,
-    canActivate: [canActivate],
-  },
-  {
-    path: 'editDeliverymen/:id',
-    component: EditDeliverymanComponent,
-    canActivate: [canActivate],
-  },
-  {
-    path: 'Admins',
-    component: AllAdminComponent,
-    canActivate: [canActivate],
-  },
-  {
-    path: 'editAdmin/:id',
-    component: EditAdminComponent,
-    canActivate: [canActivate],
-  },
+
+  { path: '**', redirectTo: '' },
 ];

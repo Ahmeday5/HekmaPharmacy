@@ -1,0 +1,78 @@
+<input #fileInput type="file" class="visually-hidden" [id]="inputId()" [accept]="acceptedTypes"
+  (change)="onFileSelected($event)" tabindex="-1">
+
+@if (isCropping() && sourceFile()) {
+<div class="cropper-panel">
+  <div class="cropper-stage">
+    <image-cropper [imageFile]="sourceFile() ?? undefined" [maintainAspectRatio]="true" [aspectRatio]="aspectRatio()"
+      [roundCropper]="roundCropper()" [resizeToWidth]="outputWidth()" [onlyScaleDown]="true" [autoCrop]="false"
+      [canvasRotation]="canvasRotation()" [transform]="transform()" [allowMoveImage]="true" format="jpeg"
+      [imageQuality]="90" backgroundColor="#ffffff" output="blob" (cropperReady)="isCropperReady.set(true)"
+      (loadImageFailed)="onLoadImageFailed()"></image-cropper>
+  </div>
+
+  <div class="cropper-toolbar" role="toolbar" aria-label="أدوات قص الصورة">
+    <button type="button" class="btn-icon" (click)="zoom(1)" [disabled]="!isCropperReady()" title="تكبير">
+      <i class="fa-solid fa-magnifying-glass-plus"></i>
+    </button>
+    <button type="button" class="btn-icon" (click)="zoom(-1)" [disabled]="!isCropperReady()" title="تصغير">
+      <i class="fa-solid fa-magnifying-glass-minus"></i>
+    </button>
+    <button type="button" class="btn-icon" (click)="rotate(1)" [disabled]="!isCropperReady()" title="تدوير يمين">
+      <i class="fa-solid fa-rotate-right"></i>
+    </button>
+    <button type="button" class="btn-icon" (click)="rotate(-1)" [disabled]="!isCropperReady()" title="تدوير شمال">
+      <i class="fa-solid fa-rotate-left"></i>
+    </button>
+    <button type="button" class="btn-icon" (click)="flipHorizontal()" [disabled]="!isCropperReady()"
+      title="قلب أفقي">
+      <i class="fa-solid fa-left-right"></i>
+    </button>
+    <button type="button" class="btn-icon" (click)="resetAdjustments()" [disabled]="!isCropperReady()"
+      title="إعادة الضبط">
+      <i class="fa-solid fa-arrows-rotate"></i>
+    </button>
+  </div>
+
+  <div class="cropper-actions">
+    <button type="button" appLoadingButton class="btn btn-brand-primary btn-sm" (click)="confirmCrop()"
+      [loading]="isProcessing()" [disabled]="!isCropperReady()">
+      <i class="fa-solid fa-crop-simple"></i> تأكيد القص
+    </button>
+    <button type="button" class="btn btn-brand-light btn-sm" (click)="cancelCrop()" [disabled]="isProcessing()">
+      إلغاء
+    </button>
+  </div>
+</div>
+} @else {
+<div class="picker-row">
+  @if (previewUrl() ?? currentImageUrl(); as imageUrl) {
+  <img class="picker-thumb" [class.round]="roundCropper()" [src]="imageUrl" alt="معاينة الصورة">
+  } @else {
+  <div class="picker-thumb picker-placeholder" [class.round]="roundCropper()">
+    <i class="fa-regular fa-image"></i>
+  </div>
+  }
+
+  <div class="picker-actions">
+    <button type="button" class="btn btn-brand-outline btn-sm" (click)="openFileDialog()" [disabled]="disabled()">
+      <i class="fa-solid fa-upload"></i>
+      {{ previewUrl() || currentImageUrl() ? 'تغيير الصورة' : 'اختيار صورة' }}
+    </button>
+    @if (previewUrl()) {
+    <button type="button" class="btn btn-brand-light btn-sm" (click)="recrop()" [disabled]="disabled()">
+      <i class="fa-solid fa-crop-simple"></i> إعادة القص
+    </button>
+    <button type="button" class="btn-icon btn-icon-danger" (click)="remove()" [disabled]="disabled()"
+      title="إزالة الصورة الجديدة" aria-label="إزالة الصورة الجديدة">
+      <i class="fa-solid fa-trash-can"></i>
+    </button>
+    }
+    <span class="picker-hint">JPG أو PNG أو WEBP — حتى 5 ميجا</span>
+  </div>
+</div>
+}
+
+@if (errorMessage()) {
+<p class="picker-error" role="alert"><i class="fa-solid fa-circle-exclamation"></i> {{ errorMessage() }}</p>
+}

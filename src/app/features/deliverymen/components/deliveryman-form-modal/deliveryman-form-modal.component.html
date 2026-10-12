@@ -1,0 +1,31 @@
+<app-modal icon="fa-motorcycle" [title]="isEdit() ? 'تعديل بيانات المندوب' : 'إضافة مندوب جديد'"
+  [subtitle]="entity()?.name" [locked]="saving()" (closed)="close()">
+  <form [id]="formId" class="form-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <app-form-field class="span-full" label="صورة المندوب" fieldId="deliveryman-image" [control]="form.controls.image"
+      [messages]="{ required: 'يرجى اختيار صورة للمندوب' }">
+      <app-image-picker inputId="deliveryman-image" formControlName="image" [currentImageUrl]="currentImageUrl()" />
+    </app-form-field>
+
+    <app-form-field class="span-full" label="اسم المندوب" fieldId="deliveryman-name" [control]="form.controls.name">
+      <input id="deliveryman-name" class="form-control" formControlName="name" placeholder="ادخل اسم المندوب"
+        autocomplete="off">
+    </app-form-field>
+
+    <app-form-field class="span-full" label="البريد الإلكتروني" fieldId="deliveryman-email"
+      [control]="form.controls.email">
+      <input id="deliveryman-email" type="email" dir="ltr" class="form-control" formControlName="email"
+        placeholder="deliveryman@example.com" autocomplete="off">
+    </app-form-field>
+
+    <app-form-field class="span-full" [label]="isEdit() ? 'كلمة مرور جديدة' : 'كلمة المرور'"
+      fieldId="deliveryman-password" [control]="form.controls.password"
+      [hint]="isEdit() ? 'اتركها فارغة للاحتفاظ بكلمة المرور الحالية' : '4 أحرف على الأقل'">
+      <app-password-input inputId="deliveryman-password" formControlName="password" />
+    </app-form-field>
+  </form>
+
+  <ng-container modalFooter>
+    <app-form-actions [formId]="formId" [saving]="saving()"
+      [submitLabel]="isEdit() ? 'حفظ التعديلات' : 'إضافة المندوب'" (cancel)="close()" />
+  </ng-container>
+</app-modal>

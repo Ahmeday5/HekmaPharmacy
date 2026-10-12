@@ -1,0 +1,27 @@
+<iframe class="map-frame" [src]="mapUrl" title="خريطة تتبع المندوبين" loading="lazy"
+  referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+
+<div class="map-overlay map-overlay-top">
+  <button type="button" class="map-control" (click)="toggleFullscreen()"
+    [attr.aria-label]="fullscreen() ? 'الخروج من ملء الشاشة' : 'عرض الخريطة بملء الشاشة'"
+    [title]="fullscreen() ? 'الخروج من ملء الشاشة' : 'ملء الشاشة'">
+    <i class="fa-solid" [class.fa-expand]="!fullscreen()" [class.fa-compress]="fullscreen()" aria-hidden="true"></i>
+  </button>
+  <div class="map-chip">
+    <span class="live-dot" aria-hidden="true"></span>
+    <strong>التتبع المباشر</strong>
+  </div>
+  @if (availableCount() !== null) {
+  <div class="map-chip">
+    <i class="fa-solid fa-motorcycle" aria-hidden="true"></i>
+    {{ availableCount() }} مندوب متاح
+  </div>
+  }
+  @if (trackedCount() !== null) {
+  <div class="map-chip">
+    <i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i>
+    {{ trackedCount() }} بموقع مباشر
+  </div>
+  }
+</div>
+

@@ -1,0 +1,27 @@
+<div class="modal-backdrop-layer" (mousedown)="onBackdropClick($event)">
+  <section #dialog class="modal-dialog-box modal-{{ size() }}" role="dialog" aria-modal="true"
+    [attr.aria-labelledby]="titleId" tabindex="-1">
+    <header class="modal-head">
+      @if (icon()) {
+      <span class="modal-head-icon"><i class="fa-solid {{ icon() }}" aria-hidden="true"></i></span>
+      }
+      <div class="modal-head-text">
+        <h2 class="modal-head-title" [id]="titleId">{{ title() }}</h2>
+        @if (subtitle()) {
+        <p class="modal-head-subtitle">{{ subtitle() }}</p>
+        }
+      </div>
+      <button type="button" class="modal-close" (click)="requestClose()" [disabled]="locked()" aria-label="إغلاق">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </header>
+
+    <div class="modal-content-body">
+      <ng-content></ng-content>
+    </div>
+
+    <footer class="modal-foot">
+      <ng-content select="[modalFooter]"></ng-content>
+    </footer>
+  </section>
+</div>

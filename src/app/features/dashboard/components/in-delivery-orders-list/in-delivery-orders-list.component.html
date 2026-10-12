@@ -1,0 +1,38 @@
+@if (orders() === null) {
+<ul class="panel-list" aria-busy="true" aria-label="جاري تحميل الطلبات">
+  @for (item of placeholders; track item) {
+  <li class="order-item">
+    <app-skeleton width="50%" />
+    <p><app-skeleton width="85%" /></p>
+    <p><app-skeleton width="65%" /></p>
+  </li>
+  }
+</ul>
+} @else {
+<ul class="panel-list">
+  @for (order of orders(); track order.id) {
+  <li class="order-item">
+    <div class="order-head">
+      <strong><i class="fa-solid fa-motorcycle"></i> {{ order.deliverymanName || 'مندوب غير معروف' }}</strong>
+      <span class="badge-status badge-info">في الطريق</span>
+    </div>
+    <p>
+      يوصل الطلب
+      <b>{{ order.orderCode || '#' + order.id }}</b>
+      إلى <b>{{ order.clientName }}</b>
+    </p>
+    <p class="order-meta">
+      <i class="fa-solid fa-location-dot"></i> {{ order.address || '—' }}
+      @if (order.amount !== null) {
+      <span class="order-amount">{{ order.amount | number: '1.0-2' }} ج.م</span>
+      }
+    </p>
+  </li>
+  } @empty {
+  <li class="panel-state">
+    <i class="fa-regular fa-circle-check"></i>
+    لا توجد طلبات قيد التوصيل حاليًا
+  </li>
+  }
+</ul>
+}

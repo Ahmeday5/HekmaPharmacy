@@ -1,0 +1,85 @@
+<div class="table-card" [class.is-refreshing]="isRefreshing()" [attr.aria-busy]="loading()">
+  @if (isRefreshing()) {
+  <div class="table-progress" role="progressbar" aria-label="جاري تحديث البيانات"></div>
+  }
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr>
+          @if (showIndex()) {
+          <th class="col-index">#</th>
+          }
+          @for (column of columns(); track column.key) {
+          <th>{{ column.header }}</th>
+          }
+          @if (hasActions()) {
+          <th class="col-actions">الإجراءات</th>
+          }
+        </tr>
+      </thead>
+
+      <tbody>
+        @if (loading() && rows().length === 0) {
+        @for (row of skeletonRows(); track row) {
+        <tr class="skeleton-row">
+          @for (cell of skeletonCells(); track cell) {
+          <td><app-skeleton [width]="cell === 0 && showIndex() ? '24px' : '80%'" /></td>
+          }
+        </tr>
+        }
+        } @else {
+        @for (row of rows(); track trackBy()(row); let i = $index) {
+        <tr>
+          @if (showIndex()) {
+          <td class="col-index" data-label="#">{{ rowOffset() + i + 1 }}</td>
+          }
+          @for (column of columns(); track column.key) {
+          <td [attr.data-label]="column.header" [class.nowrap]="column.nowrap">
+            @if (templatesByColumn().get(column.key); as template) {
+            <ng-container *ngTemplateOutlet="template; context: { $implicit: row, index: i }"></ng-container>
+            } @else {
+            {{ cellValue(row, column) }}
+            }
+          </td>
+          }
+          @if (hasActions()) {
+          <td class="col-actions" data-label="الإجراءات">
+            <div class="row-actions">
+              @if (editable()) {
+              <button type="button" class="btn-icon btn-icon-primary" (click)="edit.emit(row)" title="تعديل"
+                aria-label="تعديل">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              }
+              @if (deletable()) {
+              <button type="button" class="btn-icon btn-icon-danger" (click)="remove.emit(row)" title="حذف"
+                aria-label="حذف">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+              }
+            </div>
+          </td>
+          }
+        </tr>
+        } @empty {
+        <tr class="state-row">
+          <td [attr.colspan]="columnCount()">
+            @if (errorMessage()) {
+            <div class="table-state table-state-error">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <p>{{ errorMessage() }}</p>
+            </div>
+            } @else {
+            <div class="table-state">
+              <i class="fa-regular fa-folder-open"></i>
+              <p>{{ emptyMessage() }}</p>
+            </div>
+            }
+          </td>
+        </tr>
+        }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
